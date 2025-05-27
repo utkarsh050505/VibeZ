@@ -1,0 +1,1610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VibeZone | Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Bungee', cursive;
+      background-color: #0d0d0d;
+      color: #ffffff;
+      overflow-x: hidden;
+    }
+
+    #particles-js {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+    }
+
+    .home-container {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+
+    .navbar {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background-color: #0d0d0d;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+        max-width: 1200px;
+        margin: auto;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .navbar h1 {
+      font-size: 2rem;
+      color: #ffffff;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      font-size: 1rem;
+    }
+
+    .nav-links a {
+      color: #ffffff;
+      text-decoration: none;
+      opacity: 0.8;
+      transition: opacity 0.3s;
+    }
+
+    .nav-links a:hover {
+      opacity: 1;
+    }
+
+    .hero {
+      margin-top: 3rem;
+    }
+
+    .hero h2 {
+      font-size: clamp(2rem, 6vw, 4rem);
+      margin-bottom: 1.5rem;
+      color: #ffffff;
+      text-shadow: 0 0 10px #00cfff, 0 0 20px #9b30d9;
+    }
+
+    .explore-button {
+      padding: 0.8rem 2rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #9b30d9, #00cfff);
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(0, 207, 255, 0.4);
+      transition: transform 0.3s ease;
+    }
+
+    .explore-button:hover {
+      transform: scale(1.05);
+    }
+
+    /* Space Description Section */
+    .space-description {
+      margin: 4rem auto;
+      max-width: 1000px;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(0, 207, 255, 0.1);
+    }
+
+    .space-description h2 {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      color: #00cfff;
+      text-shadow: 0 0 10px rgba(0, 207, 255, 0.5);
+    }
+
+    .space-description p {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #ccc;
+      text-align: left;
+      margin-bottom: 1rem;
+    }
+
+    /* Slideshow Section */
+    .slideshow-container {
+      position: relative;
+      max-width: 1000px;
+      margin: 4rem auto;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 0 30px rgba(0, 207, 255, 0.2);
+    }
+
+    .slide {
+      display: none;
+      position: relative;
+      width: 100%;
+      height: 400px;
+      background: linear-gradient(45deg, #1a1a2e, #16213e, #0f3460);
+      overflow: hidden;
+    }
+
+    .slide.active {
+      display: block;
+    }
+
+    .slide-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 100%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 2;
+    }
+
+    .slide h3 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: #00cfff;
+      text-shadow: 0 0 15px rgba(0, 207, 255, 0.8);
+    }
+
+    .slide p {
+      font-size: 1.2rem;
+      color: #ffffff;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+
+    .slide::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at center, rgba(0, 207, 255, 0.1), rgba(155, 48, 217, 0.1));
+      animation: pulse 4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.7; }
+    }
+
+    .slide-indicators {
+      text-align: center;
+      padding: 1rem 0;
+    }
+
+    .indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      margin: 0 5px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .indicator.active {
+      background: #00cfff;
+      box-shadow: 0 0 10px rgba(0, 207, 255, 0.8);
+    }
+
+    /* Explore Projects Grid */
+    .explore-projects {
+      margin: 4rem auto;
+      max-width: 1200px;
+      padding: 2rem;
+    }
+
+    .explore-projects h2 {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+      color: #00cfff;
+      text-shadow: 0 0 10px rgba(0, 207, 255, 0.5);
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .project-tile {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 2rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .project-tile::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 207, 255, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .project-tile:hover::before {
+      left: 100%;
+    }
+
+    .project-tile:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 10px 30px rgba(0, 207, 255, 0.3);
+      border-color: rgba(0, 207, 255, 0.3);
+    }
+
+    .project-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #9b30d9, #00cfff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .project-tile h3 {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: #ffffff;
+    }
+
+    .project-tile p {
+      font-size: 0.9rem;
+      color: #ccc;
+      line-height: 1.5;
+    }
+
+    .features {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 4rem;
+    }
+
+    .feature-box {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 2rem;
+      width: 250px;
+      color: #ffffff;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0, 207, 255, 0.1);
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .feature-box:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 25px rgba(0, 207, 255, 0.2);
+    }
+
+    .feature-box h3 {
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-box p {
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+
+    .login-button {
+      padding: 0.5rem 1rem;
+      background: linear-gradient(135deg, #9b30d9, #00cfff);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0, 207, 255, 0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .login-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(0, 207, 255, 0.5);
+    }
+
+    .profile-menu {
+      position: relative;
+      display: inline-block;
+    }
+
+    .profile-pic {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #9b30d9, #00cfff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      cursor: pointer;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: #1a1a1a;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      z-index: 1;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .dropdown-content a {
+      color: white;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      font-size: 0.9rem;
+      transition: background-color 0.3s;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #2a2a2a;
+    }
+
+    .profile-menu:hover .dropdown-content {
+      display: block;
+    }
+
+    .explore-projects {
+  margin: 4rem auto;
+  max-width: 1200px;
+  padding: 2rem;
+}
+
+.explore-projects h2 {
+  font-size: 2.5rem;
+  margin-bottom: 3rem;
+  color: #00cfff;
+  text-shadow: 0 0 15px rgba(0, 207, 255, 0.6);
+  text-align: center;
+  position: relative;
+}
+
+.explore-projects h2::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(135deg, #9b30d9, #00cfff);
+  border-radius: 2px;
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2.5rem;
+  margin: 0 auto;
+}
+
+.project-card {
+  background: rgba(13, 13, 13, 0.8);
+  border: 1px solid rgba(0, 207, 255, 0.2);
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  backdrop-filter: blur(15px);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(0, 207, 255, 0.1);
+}
+
+.project-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(155, 48, 217, 0.05) 0%, 
+    rgba(0, 207, 255, 0.05) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.project-card:hover::before {
+  opacity: 1;
+}
+
+.project-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(0, 207, 255, 0.4);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(0, 207, 255, 0.3),
+    0 0 30px rgba(0, 207, 255, 0.2);
+}
+
+.project-image {
+  background: linear-gradient(135deg, 
+    #1a1a2e 0%, 
+    #16213e 50%, 
+    #0f3460 100%);
+  padding: 3rem 2rem;
+  position: relative;
+  text-align: center;
+  overflow: hidden;
+}
+
+.project-image::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, 
+    rgba(0, 207, 255, 0.1) 0%, 
+    transparent 70%);
+  animation: pulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.3; }
+  100% { opacity: 0.7; }
+}
+
+.project-image-placeholder {
+  position: relative;
+  z-index: 2;
+}
+
+.project-image-placeholder i {
+  font-size: 4rem;
+  color: #00cfff;
+  text-shadow: 
+    0 0 20px rgba(0, 207, 255, 0.8),
+    0 0 40px rgba(0, 207, 255, 0.4);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.project-field {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 0.85rem;
+  background: rgba(0, 207, 255, 0.2);
+  backdrop-filter: blur(10px);
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  color: #00cfff;
+  border: 1px solid rgba(0, 207, 255, 0.3);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 3;
+}
+
+.project-content {
+  padding: 2rem 1.5rem 1.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+.project-content h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #ffffff;
+  font-weight: bold;
+  line-height: 1.3;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.project-description {
+  font-size: 1rem;
+  color: #bbb;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.project-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.project-leader, .project-members {
+  display: flex;
+  align-items: center;
+  color: #ccc;
+}
+
+.project-details i {
+  margin-right: 0.5rem;
+  color: #00cfff;
+  font-size: 1rem;
+}
+
+.view-project-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 1.5rem;
+  background: linear-gradient(135deg, #9b30d9 0%, #00cfff 100%);
+  color: white;
+  border-radius: 12px;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: 
+    0 4px 15px rgba(0, 207, 255, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.view-project-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.2), 
+    transparent);
+  transition: left 0.5s ease;
+}
+
+.view-project-btn:hover::before {
+  left: 100%;
+}
+
+.view-project-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 25px rgba(0, 207, 255, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.view-project-btn:active {
+  transform: translateY(0);
+}
+
+/* No projects fallback styling */
+.no-projects-fallback {
+  text-align: center;
+  margin: 4rem 0;
+  padding: 3rem 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.no-projects-fallback .explore-button {
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 25px;
+  background: linear-gradient(135deg, #9b30d9, #00cfff);
+  color: white;
+  cursor: pointer;
+  box-shadow: 
+    0 8px 25px rgba(0, 207, 255, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  text-decoration: none;
+  display: inline-block;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.no-projects-fallback .explore-button:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 
+    0 12px 35px rgba(0, 207, 255, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .projects-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .project-card {
+    margin: 0 1rem;
+  }
+  
+  .explore-projects h2 {
+    font-size: 2rem;
+  }
+  
+  .project-image {
+    padding: 2rem 1rem;
+  }
+  
+  .project-image-placeholder i {
+    font-size: 3rem;
+  }
+  
+  .project-details {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .explore-projects {
+    padding: 1rem;
+  }
+  
+  .project-content {
+    padding: 1.5rem 1rem;
+  }
+  
+  .view-project-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+    .join-btn {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background: linear-gradient(135deg, #9b30d9, #00cfff);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .join-btn:hover {
+      transform: scale(1.05);
+    }
+
+    #auth-section {
+      display: none;
+    }
+
+    #guest-section {
+      display: block;
+    }
+
+    .welcome-message {
+      font-size: 1.2rem;
+      color: #00cfff;
+      margin-bottom: 10px;
+      text-shadow: 0 0 5px rgba(0, 207, 255, 0.5);
+    }
+
+    .check-in-btn {
+      padding: 0.6rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #ff5e00, #ff003c);
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 0 15px rgba(255, 60, 0, 0.4);
+      transition: all 0.3s ease;
+      margin-top: 15px;
+      margin-bottom: 15px;
+      display: inline-block;
+    }
+
+    .check-in-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(255, 60, 0, 0.6);
+    }
+
+    .check-in-btn:disabled {
+      background: #666;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .check-in-status {
+      font-size: 0.9rem;
+      color: #aaa;
+      margin-top: 5px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+       overflow-y: auto; /* ✅ Enables scroll inside the modal */
+       padding: 2rem 1rem; /* Optional: adds space around modal content on small screens */
+      }
+
+    .modal-content {
+      background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+      margin: 10% auto;
+      padding: 2rem;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 500px;
+      border: 1px solid rgba(0, 207, 255, 0.3);
+      box-shadow: 0 0 30px rgba(0, 207, 255, 0.2);
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .close:hover {
+      color: #00cfff;
+    }
+
+    .modal h2 {
+      text-align: center;
+      color: #00cfff;
+      margin-bottom: 1.5rem;
+      text-shadow: 0 0 10px rgba(0, 207, 255, 0.5);
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #ffffff;
+      font-size: 0.9rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #00cfff;
+      box-shadow: 0 0 10px rgba(0, 207, 255, 0.3);
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 0.8rem;
+      background: linear-gradient(135deg, #9b30d9, #00cfff);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .submit-btn:hover {
+      transform: scale(1.02);
+    }
+
+    .submit-btn:disabled {
+      background: #666;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .alert {
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      text-align: center;
+    }
+
+    .alert-success {
+      background-color: rgba(76, 175, 80, 0.2);
+      border: 1px solid #4CAF50;
+      color: #4CAF50;
+    }
+
+    .alert-error {
+      background-color: rgba(244, 67, 54, 0.2);
+      border: 1px solid #f44336;
+      color: #f44336;
+    }
+
+    /* Update existing status styles */
+    .user-status {
+      margin: 1rem 0;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      backdrop-filter: blur(10px);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.3rem 0.8rem;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      margin: 0.2rem;
+      font-weight: bold;
+    }
+
+    .status-pending { background-color: #ff9500; color: white; }
+    .status-approved { background-color: #4CAF50; color: white; }
+    .status-rejected { background-color: #f44336; color: white; }
+    .status-completed { background-color: #2196F3; color: white; }
+    .status-checked-in { background-color: #00ff88; color: black; }
+
+    /* Contact Footer */
+    .contact-footer {
+      margin-top: 6rem;
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      padding: 3rem 2rem 2rem;
+      border-top: 1px solid rgba(0, 207, 255, 0.2);
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+    }
+
+    .footer-section h3 {
+      color: #00cfff;
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+      text-shadow: 0 0 10px rgba(0, 207, 255, 0.5);
+    }
+
+    .footer-section p, .footer-section a {
+      color: #ccc;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .footer-section a:hover {
+      color: #00cfff;
+    }
+
+    .contact-info {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .contact-info i {
+      margin-right: 0.8rem;
+      color: #9b30d9;
+      width: 20px;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .social-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      color: #ffffff;
+      transition: all 0.3s ease;
+    }
+
+    .social-link:hover {
+      background: linear-gradient(135deg, #9b30d9, #00cfff);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 207, 255, 0.3);
+    }
+
+    .footer-bottom {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+      color: #666;
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 768px) {
+      .projects-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .slideshow-container {
+        height: 300px;
+      }
+      
+      .slide h3 {
+        font-size: 1.5rem;
+      }
+      
+      .slide p {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+{% load static %}
+<body>
+  <div id="particles-js"></div>
+
+  <div class="home-container">
+    <nav class="navbar">
+            <a href="{% url 'home' %}">
+                <img src="{% static "assets/logo.png" %}" alt="VibeZ Logo" style="height: 50px;" />
+            </a>
+        
+            <div style="display: flex; align-items: center; gap: 2rem;">
+                <div class="nav-links">
+                    <a href="{% url 'projects_list' %}"><i class="fas fa-briefcase"></i>Projects</a>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'notifications_list' %}">
+                        <i class="fas fa-bell"></i> Notifications
+                        {% if unread_count > 0 %}
+                            <span id="notification-count" style="display: flex; align-items: center; justify-content: center; background: #9b30d9; color: white; width: 20px; height: 20px; border-radius: 50%; font-size: 0.8rem; margin-left: 5px;">{{ unread_count }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="{% url 'profile' %}" class="active"><i class="fas fa-user"></i>Profile</a>
+                    {% endif %}
+                </div>
+                
+                <div>
+                  {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button class="login-button" type="submit">Logout</button>
+                    </form>
+                  {% else %}
+                  <a href="{% url 'login' %}"><button class="login-button">Login/Register</button></a>
+                  {% endif %}
+                </div>
+            </div>
+        </nav>      
+
+    <div class="hero">
+      <div id="checkinModal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <h2><i class="fas fa-calendar-check"></i>Request Check-in</h2>
+          
+          <div id="alertContainer"></div>
+          
+          <form id="checkinForm">
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="checkinDate">
+                <i class="fas fa-calendar"></i> Select Date
+              </label>
+              <input type="date" id="checkinDate" name="date" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="checkinTime">
+                <i class="fas fa-clock"></i> Entry Time
+              </label>
+              <input type="time" id="checkinTime" name="time" required>
+            </div>
+            
+            <button type="submit" class="submit-btn" id="submitBtn">
+              <i class="fas fa-paper-plane"></i> Submit Request
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Hero Section -->
+      <div class="hero">
+        <h2>Work. Chill. Connect.</h2>
+        
+        <div class="user-status">
+          <a href="https://www.google.com/maps/place/Vibez/@12.9436618,77.5636467,17z/data=!3m1!4b1!4m6!3m5!1s0x3bae15aebe6557ef:0x5c465242d032c9b4!8m2!3d12.9436566!4d77.5662216!16s%2Fg%2F11x78jjwwv?entry=ttu&g_ep=EgoyMDI1MDUyMS4wIKXMDSoASAFQAw%3D%3D">
+          <div class="status-badge status-approved">
+            <i class="fas fa-map-marker"></i> Find Us 
+          </div>
+        </a>
+        </div>
+        {% if user.is_authenticated %}
+        <button class="check-in-btn" id="checkInBtn">
+          <i class="fas fa-sign-in-alt"></i> Request Check-in
+        </button>
+        
+        <div class="check-in-status" id="statusText">
+          <i class="fas fa-info-circle"></i> Click to request access to the coworking space.
+        </div>
+        {% else %}
+        <a href="{% url 'login' %}">
+          <button class="check-in-btn">
+            <i class="fas fa-sign-in-alt"></i> Login to Request Check-in
+          </button>
+        </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Space Description Section -->
+    <div class="space-description">
+      <h2><i class="fas fa-building"></i> About Our Space</h2>
+      <p>Our space is designed for innovators, makers, and dreamers. Whether you're building your next prototype or brainstorming the next big idea, VibeZ has you covered.</p>
+      <p>We provide access to a full suite of electronics components and tools, including Arduino boards, Raspberry Pi kits, sensors, breadboards, jumper wires, resistors, capacitors, ICs, and soldering equipment — all ready to use.</p>
+      <p>Collaborate effortlessly with whiteboards for ideation and a projector setup perfect for presentations, workshops, or hackathon demos. At VibeZ, we don’t just offer a space — we power your vision with the tools and tech to bring it to life.</p>
+    </div>
+
+    <!-- Auto-sliding Slideshow -->
+    <div class="slideshow-container">
+      <div class="slide active">
+        <div class="slide-content">
+          <img src="{% static 'assets/vibez-img.jpg' %}" style="width: 100%"/>
+        </div>
+      </div>
+      
+      <div class="slide">
+        <div class="slide-content">
+          <img src="{% static 'assets/vibez-img3.jpg' %}" style="width: 100%"/>
+        </div>
+      </div>
+      
+      <div class="slide">
+        <div class="slide-content">
+          <img src="{% static 'assets/vibez-img2.jpg' %}" style="width: 100%"/>
+        </div>
+      </div>
+      
+      <div class="slide">
+        <div class="slide-content">
+          <img src="{% static 'assets/vibez-img4.jpg' %}" style="width: 100%"/>
+        </div>
+      </div>
+
+      <div class="slide-indicators">
+        <span class="indicator active" onclick="currentSlide(1)"></span>
+        <span class="indicator" onclick="currentSlide(2)"></span>
+        <span class="indicator" onclick="currentSlide(3)"></span>
+        <span class="indicator" onclick="currentSlide(4)"></span>
+      </div>
+    </div>
+
+    <!-- Explore Projects Grid -->
+    <div class="explore-projects">
+  <h2><i class="fas fa-compass"></i> Explore Projects</h2>
+
+  {% if random_projects %}
+    <div class="projects-grid">
+      {% for project in random_projects %}
+      <div class="project-card">
+        <div class="project-image">
+          <div class="project-image-placeholder">
+            <i class="fas fa-code"></i>
+          </div>
+          <div class="project-field">{{ project.working_field }}</div>
+        </div>
+        <div class="project-content">
+          <h3>{{ project.name }}</h3>
+          <p class="project-description">{{ project.description }}</p>
+          <div class="project-details">
+            <div class="project-leader">
+              <i class="fas fa-user"></i> {{ project.leader.name }}
+            </div>
+            <div class="project-members">
+              <i class="fas fa-users"></i> {{ project.team_members.count|add:"1" }} members
+            </div>
+          </div>
+          <a href="{% url 'project_detail' pk=project.id %}" class="view-project-btn">
+            View Project
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="no-projects-fallback">
+      <div style="margin-bottom: 2rem;">
+        <i class="fas fa-search" style="font-size: 4rem; color: #00cfff; margin-bottom: 1rem; opacity: 0.7;"></i>
+        <h3 style="color: #ffffff; margin-bottom: 1rem; font-size: 1.5rem;">No Projects Available</h3>
+        <p style="color: #ccc; font-size: 1rem; margin-bottom: 2rem;">Be the first to create an amazing project!</p>
+      </div>
+      <a href="{% url 'projects_list' %}" class="explore-button">
+        <i class="fas fa-plus"></i> Explore Projects
+      </a>
+    </div>
+  {% endif %}
+</div>
+
+    <!-- Features Section -->
+     <h2 style="text-align: center; font-size: 2.2rem; color: #00cfff; margin-top: 4rem; margin-bottom: 2rem; text-shadow: 0 0 10px rgba(0, 207, 255, 0.4); font-family: 'Bungee', cursive;">
+      <i class="fas fa-star"></i> Amenities
+    </h2>
+    <div class="features">
+      <div class="feature-box">
+        <i class="fas fa-wifi" style="font-size: 2rem; color: #00cfff;"></i>
+        <h3>High-Speed Internet</h3>
+        <p>Blazing fast fiber internet with redundant connections for uninterrupted work.</p>
+      </div>
+
+      <div class="feature-box">
+        <i class="fas fa-coffee" style="font-size: 2rem; color: #00cfff;"></i>
+        <h3>Coffee & Refreshments</h3>
+        <p>Complimentary premium coffee, tea, and healthy snacks to keep you energized.</p>
+      </div>
+
+      <div class="feature-box">
+        <i class="fas fa-users" style="font-size: 2rem; color: #00cfff;"></i>
+        <h3>Networking Events</h3>
+        <p>Regular meetups, workshops, and networking events to grow your professional circle.</p>
+      </div>
+    </div>
+
+    <!-- Contact Footer -->
+    <div class="contact-footer">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3><i class="fas fa-map-marker-alt"></i> Contact Us</h3>
+          <div class="contact-info">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>2nd Floor, NR Corner Mount Joy Road, Hanumanthnagar, Bengaluru, Karnataka</span>
+          </div>
+          <div class="contact-info">
+            <i class="fas fa-phone"></i>
+            <a href="tel:+917020993799">+91 7020993799</a>
+          </div>
+          <div class="contact-info">
+            <i class="fas fa-envelope"></i>
+            <a href="mailto:vibezconnect610@gmail.com">vibezconnect610@gmail.com</a>
+          </div>
+        </div>
+
+        <div class="footer-section">
+          <h3><i class="fas fa-share-alt"></i> Follow Us</h3>
+          <p>Stay connected and join our vibrant community across all platforms.</p>
+          <div class="social-links" style="margin-left: 35%;">
+            <a href="https://x.com/_VibeZConnect" class="social-link" title="Twitter">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="https://www.linkedin.com/company/vibez-connect/" class="social-link" title="LinkedIn">
+              <i class="fab fa-linkedin-in"></i>
+            </a>
+            <a href="https://www.instagram.com/vibezconnect" class="social-link" title="Instagram">
+              <i class="fab fa-instagram"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2025 VibeZone Coworking Space. All rights reserved. | Made by Utkarsh with ❤️ for the future of work.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
+  <script>
+// Initialize particles (keep your existing particles code)
+particlesJS("particles-js", {
+  particles: {
+    number: { value: 60, density: { enable: true, value_area: 800 } },
+    color: { value: "#00cfff" },
+    shape: { type: "circle" },
+    opacity: { value: 0.5 },
+    size: { value: 3, random: true },
+    line_linked: {
+      enable: true,
+      distance: 150,
+      color: "#00cfff",
+      opacity: 0.4,
+      width: 1
+    },
+    move: { enable: true, speed: 2, out_mode: "bounce" }
+  },
+  interactivity: {
+    events: {
+      onhover: { enable: true, mode: "grab" },
+      onclick: { enable: true, mode: "push" }
+    },
+    modes: {
+      grab: { distance: 140, line_linked: { opacity: 1 } },
+      push: { particles_nb: 4 }
+    }
+  },
+  retina_detect: true
+});
+
+// Slideshow functionality
+let slideIndex = 0;
+const slides = document.querySelectorAll('.slide');
+const indicators = document.querySelectorAll('.indicator');
+
+function showSlide(index) {
+  // Hide all slides
+  slides.forEach(slide => slide.classList.remove('active'));
+  indicators.forEach(indicator => indicator.classList.remove('active'));
+  
+  // Show current slide
+  slides[index].classList.add('active');
+  indicators[index].classList.add('active');
+}
+
+function nextSlide() {
+  slideIndex = (slideIndex + 1) % slides.length;
+  showSlide(slideIndex);
+}
+
+function currentSlide(index) {
+  slideIndex = index - 1;
+  showSlide(slideIndex);
+}
+
+// Auto-advance slides every 4 seconds
+setInterval(nextSlide, 4000);
+
+// Project tile click handlers
+document.querySelectorAll('.project-tile').forEach(tile => {
+  tile.addEventListener('click', function() {
+    const projectType = this.querySelector('h3').textContent;
+    console.log(`Clicked on ${projectType} project`);
+    // Add navigation logic here
+  });
+});
+
+// Check-in functionality
+
+document.addEventListener('DOMContentLoaded', function() {
+
+  window.addEventListener('pageshow', function (event) {
+  // Check if page was restored from back/forward cache
+  if (event.persisted || performance.getEntriesByType("navigation")[0].type === "back_forward") {
+    location.reload();
+  }
+});
+
+  const modal = document.getElementById('checkinModal');
+  const checkInBtn = document.getElementById('checkInBtn');
+  const closeBtn = document.querySelector('.close');
+  const form = document.getElementById('checkinForm');
+  const dateInput = document.getElementById('checkinDate');
+  const timeInput = document.getElementById('checkinTime');
+  const submitBtn = document.getElementById('submitBtn');
+  const alertContainer = document.getElementById('alertContainer');
+  
+  // Set default date to today
+  const today = new Date().toISOString().split('T')[0];
+  dateInput.value = today;
+  
+  // Set default time to current time
+  const now = new Date();
+  const currentTime = now.toTimeString().slice(0, 5);
+  timeInput.value = currentTime;
+  
+  // Open modal
+  if (checkInBtn) {
+    checkInBtn.addEventListener('click', function() {
+      modal.style.display = 'block';
+      updateUserStatus(); // Refresh status before showing modal
+    });
+  }
+  
+  // Close modal
+  if (closeBtn) {
+    closeBtn.addEventListener('click', function() {
+      modal.style.display = 'none';
+      clearAlerts();
+    });
+  }
+  
+  // Close modal when clicking outside
+  window.addEventListener('click', function(event) {
+    if (event.target === modal) {
+      modal.style.display = 'none';
+      clearAlerts();
+    }
+  });
+  
+  // Handle form submission
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = {
+        date: dateInput.value,
+        time: timeInput.value
+      };
+      
+      // Validate inputs
+      if (!formData.date || !formData.time) {
+        showAlert('Please fill in both date and time', 'error');
+        return;
+      }
+      
+      // Disable submit button
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+      
+      // Get CSRF token
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+                        document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+      
+      // Send request
+      fetch('/create-checkin-request/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify(formData)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showAlert(data.message, 'success');
+          setTimeout(() => {
+            modal.style.display = 'none';
+            updateUserStatus();
+            clearAlerts();
+          }, 2000);
+        } else {
+          showAlert(data.message, 'error');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showAlert('An error occurred. Please try again.', 'error');
+      })
+      .finally(() => {
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Request';
+      });
+    });
+  }
+  
+  // Update user status on page load
+  updateUserStatus();
+  
+  // Update status every 30 seconds
+  setInterval(updateUserStatus, 30000);
+});
+
+function showAlert(message, type) {
+  const alertContainer = document.getElementById('alertContainer');
+  if (!alertContainer) return;
+  
+  const alertDiv = document.createElement('div');
+  alertDiv.className = `alert alert-${type}`;
+  alertDiv.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i> ${message}`;
+  
+  alertContainer.innerHTML = '';
+  alertContainer.appendChild(alertDiv);
+}
+
+function clearAlerts() {
+  const alertContainer = document.getElementById('alertContainer');
+  if (alertContainer) {
+    alertContainer.innerHTML = '';
+  }
+}
+
+function updateUserStatus() {
+  // Try to fetch real user status from server
+  fetch('/get-user-status/')
+    .then(response => response.json())
+    .then(data => {
+      const statusContainer = document.getElementById('userStatus');
+      const statusText = document.getElementById('statusText');
+      const checkInBtn = document.getElementById('checkInBtn');
+      
+      if (data.error) {
+        console.error('Error fetching user status:', data.error);
+        // Fallback to simulated status
+        setFallbackStatus();
+        return;
+      }
+      
+      let statusHTML = '';
+      let buttonText = 'Request Check-in';
+      let buttonDisabled = false;
+      
+      if (data.is_checked_in) {
+        statusHTML = `
+          <div class="status-badge status-checked-in">
+            <i class="fas fa-user-check"></i> Currently Checked In
+          </div>
+          <div style="margin-top: 0.5rem; color: #00cfff;">
+            Session Duration: ${data.current_session_duration} hours
+          </div>
+        `;
+        buttonText = 'Already Checked In';
+        buttonDisabled = true;
+      } else if (data.latest_request_status) {
+        const statusClass = `status-${data.latest_request_status.toLowerCase()}`;
+        const statusIcon = {
+          'PENDING': 'clock',
+          'APPROVED': 'check',
+          'REJECTED': 'times',
+          'COMPLETED': 'flag-checkered'
+        }[data.latest_request_status] || 'info';
+        
+        statusHTML = `
+          <div class="status-badge ${statusClass}">
+            <i class="fas fa-${statusIcon}"></i> ${data.latest_request_status}
+          </div>
+        `;
+        
+        if (data.latest_request_date && data.latest_request_time) {
+          statusHTML += `
+            <div style="margin-top: 0.5rem; color: #aaa; font-size: 0.8rem;">
+              Requested: ${data.latest_request_date} at ${data.latest_request_time}
+            </div>
+          `;
+        }
+        
+        if (data.latest_request_status === 'PENDING') {
+          buttonText = 'Request Pending';
+          buttonDisabled = true;
+        }
+      }
+      
+      if (statusContainer) {
+        statusContainer.innerHTML = statusHTML;
+      }
+      
+      if (checkInBtn) {
+        checkInBtn.innerHTML = `<i class="fas fa-sign-in-alt"></i> ${buttonText}`;
+        checkInBtn.disabled = buttonDisabled;
+      }
+      
+      // Update status text
+      if (statusText) {
+        if (data.is_checked_in) {
+          statusText.innerHTML = `<i class="fas fa-info-circle"></i> You are currently in the space. Admin will check you out when you leave.`;
+        } else if (data.latest_request_status === 'PENDING') {
+          statusText.innerHTML = `<i class="fas fa-info-circle"></i> Your request is pending admin approval.`;
+        } else {
+          statusText.innerHTML = `<i class="fas fa-info-circle"></i> Click to request access to the coworking space.`;
+        }
+      }
+    })
+    .catch(error => {
+      console.error('Error updating user status:', error);
+      // Fallback to simulated status when server is unavailable
+      setFallbackStatus();
+    });
+}
+
+function setFallbackStatus() {
+  // Fallback function for when server status is unavailable
+  const statusContainer = document.getElementById('userStatus');
+  const statusText = document.getElementById('statusText');
+  const checkInBtn = document.getElementById('checkInBtn');
+  
+  if (statusContainer) {
+    statusContainer.innerHTML = `
+      <div class="status-badge status-approved">
+        <i class="fas fa-check"></i> Ready to Check In
+      </div>
+    `;
+  }
+  
+  if (checkInBtn) {
+    checkInBtn.innerHTML = `<i class="fas fa-sign-in-alt"></i> Request Check-in`;
+    checkInBtn.disabled = false;
+  }
+  
+  if (statusText) {
+    statusText.innerHTML = `<i class="fas fa-info-circle"></i> Click to request access to the coworking space.`;
+  }
+}
+
+// Smooth scrolling for navigation links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function (e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      target.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  });
+});
+
+// Add scroll animations
+const observerOptions = {
+  threshold: 0.1,
+  rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.opacity = '1';
+      entry.target.style.transform = 'translateY(0)';
+    }
+  });
+}, observerOptions);
+
+// Observe elements for animation
+document.querySelectorAll('.feature-box, .project-tile, .space-description').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(30px)';
+  el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+  observer.observe(el);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Administrative Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Add CSRF token meta tag -->
+    <meta name="csrf-token" content="{{ csrf_token }}">
+<style>
+.users-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.page-header {
+    margin-bottom: 30px;
+}
+
+.page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 20px;
+}
+
+.stats-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: 1px solid #e5e7eb;
+    flex: 1;
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-card.active {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.stat-label {
+    font-size: 14px;
+    opacity: 0.8;
+    font-weight: 500;
+}
+
+.action-section {
+    margin-bottom: 30px;
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 16px;
+}
+
+.manual-checkin-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: 1px solid #e5e7eb;
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #374151;
+    min-width: 120px;
+}
+
+.form-select {
+    flex: 1;
+    min-width: 300px;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.table-section {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+.table-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.search-input, .filter-select {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.search-input {
+    width: 200px;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.users-table th {
+    background: #f9fafb;
+    padding: 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 14px;
+}
+
+.users-table td {
+    padding: 20px 16px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+}
+
+.user-row:hover {
+    background: #f9fafb;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.user-details {
+    flex: 1;
+}
+
+.user-name {
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 4px;
+}
+
+.user-email {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 2px;
+}
+
+.user-meta {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-inactive {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.session-info {
+    text-align: left;
+}
+
+.session-time {
+    font-weight: 500;
+    color: #1f2937;
+    margin-bottom: 4px;
+    font-size: 14px;
+}
+
+.session-detail {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.no-session, .no-duration {
+    color: #9ca3af;
+    font-style: italic;
+}
+
+.duration-badge {
+    background: #eff6ff;
+    color: #1d4ed8;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.hours-info {
+    text-align: left;
+}
+
+.total-hours {
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 4px;
+}
+
+.hours-detail {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+}
+
+.btn-checkout {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-checkout:hover {
+    background: #dc2626;
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: #6b7280;
+    cursor: not-allowed;
+}
+
+.btn-icon {
+    font-size: 14px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-message {
+    color: #6b7280;
+    font-size: 16px;
+}
+
+@media (max-width: 768px) {
+    .stats-row {
+        flex-direction: column;
+    }
+    
+    .form-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .form-group label {
+        min-width: auto;
+    }
+    
+    .form-select {
+        min-width: auto;
+    }
+    
+    .table-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: stretch;
+    }
+    
+    .table-controls {
+        justify-content: space-between;
+    }
+}
+
+.nav {
+    background: linear-gradient(135deg, #4c51bf, #6b46c1);
+    padding: 15px 20px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    flex-wrap: wrap;
+}
+
+.nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1rem;
+    padding: 8px 15px;
+    border-radius: 8px;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.nav a:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #e0e0ff;
+}
+
+/* Loading state styles */
+.btn-loading {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-loading::after {
+    content: "...";
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0%, 33% { content: ""; }
+    34%, 66% { content: "."; }
+    67%, 100% { content: ".."; }
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+.modal-body p {
+    margin-bottom: 12px;
+}
+
+.modal-body label {
+    display: block;
+    margin-top: 16px;
+    font-weight: 500;
+}
+
+.modal-body select, .modal-body input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-top: 4px;
+}
+
+.modal-footer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.success-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #10b981;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    z-index: 1000;
+    font-weight: 600;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+</style>
+</head>
+<body>
+<!-- Add CSRF token as hidden input -->
+{% csrf_token %}
+{% load tz %}
+<div class="nav">
+    <a href="{% url 'administrative:dashboard' %}">Dashboard</a>
+    <a href="{% url 'administrative:users_list' %}">Users</a>
+    <a href="{% url 'administrative:sessions_history' %}">Sessions</a>
+    <a href="{% url 'administrative:projects' %}">Projects</a>
+</div>
+
+<div class="users-container">
+    <div class="page-header">
+        <h1 class="page-title">Users Management</h1>
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-value">{{ total_users }}</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-card active">
+                <div class="stat-value">{{ checked_in_users }}</div>
+                <div class="stat-label">Currently Active</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ total_hours_today }}</div>
+                <div class="stat-label">Hours Today</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-section">
+        <h2 class="section-title">Quick Actions</h2>
+        <div class="manual-checkin-card">
+            <div class="form-group">
+                <label for="userSelect">Manual Check-in</label>
+                <select id="userSelect" class="form-select">
+                    <option value="">Select user to check in...</option>
+                    {% for user in users %}
+                    {% if not user.is_checked_in %}
+                    <option value="{{ user.id }}">{{ user.name }} - {{ user.email }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+                <button class="btn btn-primary" onclick="manualCheckIn()">
+                    <span class="btn-icon">👤</span>
+                    Check In User
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-section">
+        <div class="table-header">
+            <h2 class="section-title">All Users</h2>
+            <div class="table-controls">
+                <input type="text" id="searchUsers" placeholder="Search users..." class="search-input">
+                <select id="statusFilter" class="filter-select">
+                    <option value="">All Status</option>
+                    <option value="checked-in">Checked In</option>
+                    <option value="checked-out">Checked Out</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Status</th>
+                        <th>Current Session</th>
+                        <th>Session Duration</th>
+                        <th>Total Hours</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    {% for user in users %}
+                    <tr class="user-row" data-status="{% if user.is_checked_in %}checked-in{% else %}checked-out{% endif %}">
+                        <td>
+                            <div class="user-info">
+                                <div class="user-avatar">
+                                    {{ user.name|first|upper }}
+                                </div>
+                                <div class="user-details">
+                                    <div class="user-name">{{ user.name }}</div>
+                                    <div class="user-email">{{ user.email }}</div>
+                                    <div class="user-meta">{{ user.study_level }} • {{ user.specialization }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if user.is_checked_in %}
+                            <span class="status-badge status-active">
+                                <span class="status-dot"></span>
+                                Active
+                            </span>
+                            {% else %}
+                            <span class="status-badge status-inactive">
+                                <span class="status-dot"></span>
+                                Inactive
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.current_session %}
+                                <div class="session-info">
+                                    {% timezone "Asia/Kolkata" %}
+                                    <div class="session-time">{{ user.current_session.check_in|date:"M d, Y" }}</div>
+                                    <div class="session-detail">{{ user.current_session.check_in|time:"g:i A" }}</div>
+                                    {% endtimezone %}
+                                </div>
+                            {% else %}
+                                <span class="no-session">Not active</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.is_checked_in and user.current_session %}
+                                <span class="duration-badge" 
+                                      id="duration-{{ user.id }}" 
+                                      data-checkin="{{ user.current_session.check_in|date:'c' }}">
+                                    Loading...
+                                </span>
+                            {% else %}
+                                <span class="no-duration">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="hours-info">
+                                <div class="total-hours">{{ user.get_hours_summary.lifetime|default:"0.0 hrs" }}</div>
+                                <div class="hours-detail">Lifetime</div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if user.is_checked_in and user.current_session %}
+                            <button class="btn btn-checkout" 
+                                    onclick="initiateCheckOut({{ user.current_session.id }}, {{ user.id }}, '{{ user.name|escapejs }}')"
+                                    id="checkout-btn-{{ user.id }}">
+                                <span class="btn-icon">🚪</span>
+                                Check Out
+                            </button>
+                            {% else %}
+                            <button class="btn btn-secondary" disabled>
+                                No Action
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <div class="empty-message">No users found</div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkoutModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-header">Checkout Summary</h3>
+            <div class="modal-body">
+                <p id="checkoutUserName" style="font-weight: 500; margin-bottom: 12px;"></p>
+                <p><strong>Session Duration:</strong> <span id="checkoutDuration"></span></p>
+                <p><strong>Base Amount:</strong> ₹<span id="baseAmount"></span></p>
+
+                <label for="discountSelect">Discount:</label>
+                <select id="discountSelect">
+                    <option value="0">0%</option>
+                    <option value="10">10%</option>
+                    <option value="15">15%</option>
+                </select>
+
+                <div style="margin-top: 12px;">
+                    <label style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" id="firstTimeCheckbox"> First Time User (-₹40)
+                    </label>
+                </div>
+
+                <p style="margin-top: 16px;"><strong>Total to Collect:</strong> ₹<span id="finalAmount">0</span></p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeModal()" class="btn" style="background: #ccc; color: #333;">Cancel</button>
+                <button id="confirmCheckoutBtn" class="btn btn-checkout">Confirm Checkout</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Global variables
+let currentCheckout = {
+    sessionId: null,
+    userId: null,
+    duration: 0,
+    userName: ''
+};
+
+// Get CSRF token function
+function getCSRFToken() {
+    let token = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+    if (!token) {
+        token = document.querySelector('meta[name=csrf-token]')?.content;
+    }
+    if (!token) {
+        // Fallback: try to get from cookie
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            const [name, value] = cookie.trim().split('=');
+            if (name === 'csrftoken') {
+                token = value;
+                break;
+            }
+        }
+    }
+    return token;
+}
+
+// Calculate time difference in hours
+function calculateDurationHours(checkinTime) {
+    const checkin = new Date(checkinTime);
+    const now = new Date();
+    const diffMs = now - checkin;
+    return diffMs / (1000 * 60 * 60); // Convert to hours
+}
+
+// Format duration function
+function formatDuration(hours) {
+    if (hours < 1) {
+        const minutes = Math.floor(hours * 60);
+        return `${minutes}m`;
+    } else {
+        const wholeHours = Math.floor(hours);
+        const minutes = Math.floor((hours - wholeHours) * 60);
+        if (minutes === 0) {
+            return `${wholeHours}h`;
+        }
+        return `${wholeHours}h ${minutes}m`;
+    }
+}
+
+// Update durations for active users
+function updateDurations() {
+    const durationElements = document.querySelectorAll('[id^="duration-"]');
+    durationElements.forEach(element => {
+        const checkinTime = element.getAttribute('data-checkin');
+        if (checkinTime) {
+            const hours = calculateDurationHours(checkinTime);
+            element.textContent = formatDuration(hours);
+        }
+    });
+}
+
+// Initiate checkout process
+function initiateCheckOut(sessionId, userId, userName) {
+    const durationElement = document.getElementById(`duration-${userId}`);
+    const checkinTime = durationElement?.getAttribute("data-checkin");
+    
+    if (!checkinTime) {
+        alert('Unable to calculate session duration');
+        return;
+    }
+    
+    const mins = calculateDurationHours(checkinTime) * 60;
+    
+    // Store checkout data
+    currentCheckout = {
+        sessionId: sessionId,
+        userId: userId,
+        duration: mins,
+        userName: userName
+    };
+
+    // Calculate base amount
+    const rate = mins <= 180 ? 0.667 : 0.5;
+    const baseAmount = +(mins * rate).toFixed(2);
+
+    // Populate modal
+    document.getElementById("checkoutUserName").textContent = `Checking out: ${userName}`;
+    document.getElementById("checkoutDuration").textContent = formatDuration(mins / 60);
+    document.getElementById("baseAmount").textContent = baseAmount;
+    document.getElementById("finalAmount").textContent = baseAmount;
+
+    // Reset form elements
+    document.getElementById("discountSelect").value = "0";
+    document.getElementById("firstTimeCheckbox").checked = false;
+
+    // Show modal
+    document.getElementById("checkoutModal").style.display = "flex";
+    
+    // Update final amount calculation
+    updateFinalAmount();
+}
+
+// Update final amount based on discount and first-time user
+function updateFinalAmount() {
+    const baseAmount = parseFloat(document.getElementById("baseAmount").textContent);
+    const discountPercent = parseInt(document.getElementById("discountSelect").value);
+    const isFirstTime = document.getElementById("firstTimeCheckbox").checked;
+
+    let discountAmount = (baseAmount * discountPercent / 100);
+    let final = baseAmount - discountAmount;
+    if (isFirstTime) final -= 40;
+    final = Math.max(final, 0); // Never go negative
+
+    document.getElementById("finalAmount").textContent = final.toFixed(2);
+}
+
+// Close modal function
+function closeModal() {
+    document.getElementById("checkoutModal").style.display = "none";
+    currentCheckout = { sessionId: null, userId: null, duration: 0, userName: '' };
+}
+
+// Confirm checkout
+function confirmCheckOut() {
+    const finalAmount = document.getElementById("finalAmount").textContent;
+    const discountPercent = parseInt(document.getElementById("discountSelect").value);
+    const isFirstTime = document.getElementById("firstTimeCheckbox").checked;
+
+    if (confirm(`Collect ₹${finalAmount} from ${currentCheckout.userName}?`)) {
+        const btnElement = document.getElementById(`checkout-btn-${currentCheckout.userId}`);
+        if (btnElement) {
+            btnElement.classList.add('btn-loading');
+            btnElement.disabled = true;
+        }
+
+        makeRequest('{% url "administrative:check_out_user" %}', {
+            session_id: currentCheckout.sessionId,
+            final_amount: parseFloat(finalAmount),
+            discount: discountPercent,
+            first_time: isFirstTime
+        }).then(() => {
+            closeModal();
+        }).finally(() => {
+            if (btnElement) {
+                btnElement.classList.remove('btn-loading');
+                btnElement.disabled = false;
+            }
+        });
+    }
+}
+
+// Manual check-in function
+function manualCheckIn() {
+    const userId = document.getElementById('userSelect').value;
+    if (!userId) {
+        alert('Please select a user');
+        return;
+    }
+    
+    if (confirm('Check in selected user?')) {
+        makeRequest('{% url 'administrative:manual_check_in_user' %}', {
+            user_id: parseInt(userId)
+        });
+    }
+}
+
+// Search functionality
+function setupSearch() {
+    document.getElementById('searchUsers').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('.user-row');
+        
+        rows.forEach(row => {
+            const userName = row.querySelector('.user-name')?.textContent.toLowerCase() || '';
+            const userEmail = row.querySelector('.user-email')?.textContent.toLowerCase() || '';
+            
+            if (userName.includes(searchTerm) || userEmail.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+}
+
+// Status filter functionality
+function setupStatusFilter() {
+    document.getElementById('statusFilter').addEventListener('change', function(e) {
+        const filterValue = e.target.value;
+        const rows = document.querySelectorAll('.user-row');
+        
+        rows.forEach(row => {
+            const status = row.getAttribute('data-status');
+            
+            if (!filterValue || status === filterValue) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+}
+
+// Show success notification
+function showSuccessMessage(message) {
+    const successMsg = document.createElement('div');
+    successMsg.className = 'success-notification';
+    successMsg.textContent = message || 'Operation successful';
+    document.body.appendChild(successMsg);
+    
+    setTimeout(() => {
+        successMsg.remove();
+    }, 3000);
+}
+
+// Improved AJAX request function
+function makeRequest(url, data) {
+    const csrfToken = getCSRFToken();
+    
+    if (!csrfToken) {
+        alert('CSRF token not found. Please refresh the page.');
+        return Promise.reject('No CSRF token');
+    }
+
+    return fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            showSuccessMessage(data.message || 'Operation successful');
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            alert(data.message || 'An error occurred');
+        }
+        return data;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert(`An error occurred: ${error.message}`);
+        throw error;
+    });
+}
+
+// Initialize page functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize durations
+    updateDurations();
+    
+    // Setup search and filter
+    setupSearch();
+    setupStatusFilter();
+    
+    // Setup modal event listeners
+    document.getElementById('discountSelect').addEventListener('change', updateFinalAmount);
+    document.getElementById('firstTimeCheckbox').addEventListener('change', updateFinalAmount);
+    document.getElementById('confirmCheckoutBtn').addEventListener('click', confirmCheckOut);
+    
+    // Setup periodic duration updates
+    setInterval(updateDurations, 60000);
+    
+    // Debug CSRF token
+    console.log('CSRF Token:', getCSRFToken());
+});
+
+// Handle modal clicks outside content
+document.getElementById('checkoutModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeModal();
+    }
+});
+
+</script>
+</body>
+</html>

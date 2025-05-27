@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VibeZone | Landing Page</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #0d0d0d;
+      font-family: 'Bungee', cursive;
+      overflow: hidden;
+    }
+
+    #particles-js {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+    }
+
+    .landing-container {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+      color: white;
+    }
+
+    .glow-title {
+      font-size: clamp(3rem, 8vw, 6rem);
+      color: #ffffff;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards, neonGlow 2.5s infinite alternate;
+      animation-delay: 0.5s;
+      animation-fill-mode: forwards;
+    }
+
+    .tagline {
+      font-size: clamp(1rem, 2.5vw, 1.5rem);
+      margin-top: 1rem;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards, neonGlowSoft 2.5s infinite alternate;
+      animation-delay: 2s;
+      animation-fill-mode: forwards;
+    }
+
+    .button-container {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: center;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards;
+      animation-delay: 3.5s;
+      animation-fill-mode: forwards;
+    }
+
+    .cta-button {
+      padding: 1rem 2rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #7e4cc9, #00cfff);
+      color: white;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .cta-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 12px rgba(0, 207, 255, 0.5);
+    }
+
+    @keyframes neonGlow {
+      0% {
+        text-shadow: 0 0 5px #fff, 0 0 10px #9b30d9, 0 0 20px #9b30d9,
+                     0 0 40px #9b30d9, 0 0 60px #00cfff, 0 0 80px #00cfff;
+      }
+      50% {
+        text-shadow: 0 0 2px #fff, 0 0 5px #9b30d9, 0 0 10px #00cfff;
+      }
+      100% {
+        text-shadow: 0 0 8px #fff, 0 0 16px #9b30d9, 0 0 32px #00cfff,
+                     0 0 48px #00cfff;
+      }
+    }
+
+    @keyframes neonGlowSoft {
+      0% {
+        text-shadow: 0 0 2px #00cfff;
+      }
+      100% {
+        text-shadow: 0 0 10px #00cfff, 0 0 20px #9b30d9;
+      }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div id="particles-js"></div>
+
+  <div class="landing-container">
+    <div class="glow-title">Vibe Zone</div>
+    <div class="tagline">#vibe &nbsp; #chill &nbsp; #connect</div>
+    <div class="button-container">
+      <a class="cta-button" href="{% url 'home' %}">Dive In</a>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
+  <script>
+    particlesJS("particles-js", {
+      particles: {
+        number: { value: 60, density: { enable: true, value_area: 800 } },
+        color: { value: "#00cfff" },
+        shape: { type: "circle" },
+        opacity: { value: 0.5 },
+        size: { value: 3, random: true },
+        line_linked: {
+          enable: true,
+          distance: 150,
+          color: "#00cfff",
+          opacity: 0.4,
+          width: 1
+        },
+        move: { enable: true, speed: 2, out_mode: "bounce" }
+      },
+      interactivity: {
+        events: {
+          onhover: { enable: true, mode: "grab" },
+          onclick: { enable: true, mode: "push" }
+        },
+        modes: {
+          grab: { distance: 140, line_linked: { opacity: 1 } },
+          push: { particles_nb: 4 }
+        }
+      },
+      retina_detect: true
+    });
+  </script>
+</body>
+</html>

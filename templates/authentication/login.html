@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register | VibeZone</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Bungee', cursive;
+      background-color: #0d0d0d;
+      color: #ffffff;
+      overflow: hidden;
+      overflow-y: auto;
+    }
+    #particles-js {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      opacity: 0.6;
+    }
+    .login-container {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+      text-align: center;
+    }
+    .login-box {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
+    .login-title {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      color: #fff;
+      text-shadow: 0 0 10px #00cfff, 0 0 20px #9b30d9;
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+    .form-control {
+      width: 100%;
+      padding: 0.8rem;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 4px;
+      color: #fff;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: #9b30d9;
+      box-shadow: 0 0 0 2px rgba(155,48,217,0.2);
+    }
+    .submit-btn {
+      width: 100%;
+      padding: 0.8rem;
+      background: linear-gradient(135deg,#9b30d9,#00cfff);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,207,255,0.4);
+    }
+    .back-to-home {
+      margin-top: 1.5rem;
+      color: #ccc;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      font-size: 0.9rem;
+    }
+
+    .back-to-home i { margin-right: 0.5rem; }
+    .back-to-home:hover { color: #fff; }
+  </style>
+</head>
+<body>
+  <!-- Particles background -->
+  <div id="particles-js"></div>
+
+  <div class="login-container">
+    <div class="login-box">
+      <h1 class="login-title">Login</h1>
+      {% if message %}
+      <p>{{ message }}</p>
+      {% endif %}
+
+      {% if messages %}
+      <p>{{ messages }}</p>
+      {% endif %}
+      <form id="registration-form" action="{% url 'login' %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email address" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" class="form-control" placeholder="Enter a password" required>
+        </div>
+        <button type="submit" class="submit-btn">Login</button>
+      </form>
+    </div>
+    <p class="back-to-home">New User ? <a href="{% url 'signup' %}" class="" style="text-decoration: none; margin-left: 5px; color: #f0f0f0">Register</a></p>
+    <a href="{% url 'reset-password' %}" class="back-to-home">Forgot Password</a>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
+  <script>
+    // Initialize particles
+    particlesJS("particles-js", {
+      particles: {
+        number: { value: 60, density: { enable: true, value_area: 800 } },
+        color: { value: "#00cfff" },
+        shape: { type: "circle" },
+        opacity: { value: 0.5 },
+        size: { value: 3, random: true },
+        line_linked: {
+          enable: true,
+          distance: 150,
+          color: "#00cfff",
+          opacity: 0.4,
+          width: 1
+        },
+        move: { enable: true, speed: 2, out_mode: "bounce" }
+      },
+      interactivity: {
+        events: {
+          onhover: { enable: true, mode: "grab" },
+          onclick: { enable: true, mode: "push" }
+        },
+        modes: {
+          grab: { distance: 140, line_linked: { opacity: 1 } },
+          push: { particles_nb: 4 }
+        }
+      },
+      retina_detect: true
+    });
+  </script>
+</body>
+</html>

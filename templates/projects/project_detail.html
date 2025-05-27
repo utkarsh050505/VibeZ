@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Details | VibeZone</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  {% load static %}
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Bungee', cursive;
+      background-color: #0d0d0d;
+      color: #ffffff;
+      overflow-x: hidden;
+    }
+
+    #particles-js {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: #0d0d0d;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      max-width: 1200px;
+      margin: auto;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .navbar h1 {
+      font-size: 2rem;
+      color: #ffffff;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      font-size: 1rem;
+    }
+
+    .nav-links a {
+      color: #ffffff;
+      text-decoration: none;
+      opacity: 0.8;
+      transition: opacity 0.3s;
+    }
+
+    .nav-links a:hover {
+      opacity: 1;
+    }
+
+    .login-button {
+      padding: 0.5rem 1rem;
+      background: linear-gradient(135deg, #9b30d9, #00cfff);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0, 207, 255, 0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .login-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(0, 207, 255, 0.5);
+    }
+
+    /* Project Detail Styles */
+    .project-detail-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .project-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 1rem;
+    }
+
+    .project-title-section {
+      text-align: left;
+    }
+
+    .project-title {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      color: #ffffff;
+      text-shadow: 0 0 10px #00cfff, 0 0 20px #9b30d9;
+    }
+
+    .project-field-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #9b30d9, #00cfff);
+      color: white;
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .project-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .action-button {
+      padding: 0.7rem 1.5rem;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .join-button {
+      background: linear-gradient(135deg, #9b30d9, #00cfff);
+      color: white;
+      box-shadow: 0 0 10px rgba(0, 207, 255, 0.3);
+    }
+
+    .join-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(0, 207, 255, 0.5);
+    }
+
+    .github-button {
+      background: #333;
+      color: white;
+    }
+
+    .github-button:hover {
+      transform: scale(1.05);
+      background: #444;
+    }
+
+    .project-image-gallery {
+      margin-bottom: 2rem;
+      position: relative;
+      height: 300px;
+      overflow: hidden;
+      border-radius: 15px;
+    }
+
+    .project-image-placeholder {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #333, #111);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 5rem;
+      color: #00cfff;
+    }
+
+    .project-section {
+      margin-bottom: 2rem;
+      text-align: left;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #00cfff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-title i {
+      color: #9b30d9;
+    }
+
+    .project-description {
+      color: #ccc;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .meta-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      color: #aaa;
+    }
+
+    .meta-info-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .meta-info-item i {
+      color: #00cfff;
+    }
+
+    .team-members {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .member-card {
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 12px;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: transform 0.3s ease;
+    }
+
+    .member-card:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .member-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #9b30d9, #00cfff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.2rem;
+    }
+
+    .member-info {
+      text-align: left;
+    }
+
+    .member-name {
+      font-size: 1rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .member-role {
+      font-size: 0.8rem;
+      color: #999;
+    }
+
+    .leader-badge {
+      background: linear-gradient(135deg, #ff9d00, #ff6b00);
+      color: white;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 10px;
+      margin-left: 0.5rem;
+    }
+
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #00cfff;
+      text-decoration: none;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      transition: transform 0.3s ease;
+    }
+
+    .back-button:hover {
+      transform: translateX(-5px);
+    }
+  </style>
+</head>
+<body>
+  <div id="particles-js"></div>
+
+  <div class="container">
+    <nav class="navbar">
+      <a href="{% url 'home' %}">
+        <img src="{% static 'assets/logo.png' %}" alt="VibeZ Logo" style="height: 50px;" />
+      </a>
+    
+      <div style="display: flex; align-items: center; gap: 2rem;">
+        <div class="nav-links">
+          <a href="{% url 'projects_list' %}"><i class="fas fa-briefcase"></i> Projects</a>
+         {% if user.is_authenticated %}
+            <a href="{% url 'notifications_list' %}">
+              <i class="fas fa-bell"></i> Notifications
+              {% if unread_count > 0 %}
+              <span id="notification-count" style="display: flex; align-items: center; justify-content: center; background: #9b30d9; color: white; width: 20px; height: 20px; border-radius: 50%; font-size: 0.8rem; margin-left: 5px;">{{ unread_count }}</span>
+              {% endif %}
+              </a>
+            <a href="{% url 'profile' %}" class="active"><i class="fas fa-user"></i>Profile</a>
+          {% endif %}
+        </div>
+        
+        <!-- Guest section (shown when not logged in) -->
+        <div id="guest-section">
+          {% if user.is_authenticated %}
+              <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button class="login-button" type="submit">Logout</button>
+              </form>
+            {% else %}
+            <a href="{% url 'login' %}"><button class="login-button">Login/Register</button></a>
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+
+    <a href="{% url 'projects_list' %}" class="back-button">
+      <i class="fas fa-arrow-left"></i> Back to Projects
+    </a>
+
+    <div class="project-detail-container">
+      <div class="project-header">
+        <div class="project-title-section">
+          <h1 class="project-title">{{ project.name }}</h1>
+          <div class="project-field-badge">
+            <i class="fas fa-tag"></i> 
+            {% for code, name in project.FIELD_CHOICES %}
+              {% if code == project.working_field %}
+                {{ name }}
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+        <div class="project-actions">
+        {% if user.is_authenticated %}
+          {% if request.user.username != project.leader.username and request.user.username not in team_usernames %}
+          <form method="post" action="{% url 'create_join_request' project_id=project.id %}">
+            {% csrf_token %}
+            <button class="action-button join-button" type="submit">
+              <i class="fas fa-user-plus"></i> Join Project
+            </button>
+          </form>
+          {% endif %}
+        {% endif %}
+          
+          {% if project.github_link %}
+            <a href="{{ project.github_link }}" target="_blank" class="action-button github-button">
+              <i class="fab fa-github"></i> GitHub
+            </a>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="project-image-gallery">
+        {% if project.images.all %}
+          <!-- Implement image gallery here if needed -->
+        {% else %}
+          <div class="project-image-placeholder">
+            {% if project.working_field == 'AI' %}
+              <i class="fas fa-brain"></i>
+            {% elif project.working_field == 'ML' %}
+              <i class="fas fa-robot"></i>
+            {% elif project.working_field == 'WEB' %}
+              <i class="fas fa-code"></i>
+            {% elif project.working_field == 'MOB' %}
+              <i class="fas fa-mobile-alt"></i>
+            {% elif project.working_field == 'GAME' %}
+              <i class="fas fa-gamepad"></i>
+            {% elif project.working_field == 'DATA' %}
+              <i class="fas fa-database"></i>
+            {% elif project.working_field == 'IOT' %}
+              <i class="fas fa-microchip"></i>
+            {% elif project.working_field == 'CYBER' %}
+              <i class="fas fa-shield-alt"></i>
+            {% else %}
+              <i class="fas fa-project-diagram"></i>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="meta-info">
+        <div class="meta-info-item">
+          <i class="fas fa-calendar-alt"></i>
+          <span>Created: {{ project.created_at|date:"M d, Y" }}</span>
+        </div>
+        <div class="meta-info-item">
+          <i class="fas fa-clock"></i>
+          <span>Last updated: {{ project.updated_at|date:"M d, Y" }}</span>
+        </div>
+        <div class="meta-info-item">
+          <i class="fas fa-users"></i>
+          <span>{{ project.team_members.count|add:1 }} members</span>
+        </div>
+      </div>
+
+      <div class="project-section">
+        <h2 class="section-title">
+          <i class="fas fa-info-circle"></i> Description
+        </h2>
+        <div class="project-description">
+          {{ project.description|linebreaks }}
+        </div>
+      </div>
+
+      <div class="project-section">
+        <h2 class="section-title">
+          <i class="fas fa-users"></i> Team Members
+        </h2>
+        <div class="team-members">
+          <!-- Project Leader -->
+          <div class="member-card">
+            <div class="member-avatar">
+              {{ project.leader.name|slice:":1" }}
+            </div>
+            <div class="member-info">
+              <div class="member-name">
+                {{ project.leader.name }}
+                <span class="leader-badge">Leader</span>
+              </div>
+              <div class="member-role">{{ project.leader.title }}</div>
+            </div>
+          </div>
+
+          <!-- Team Members -->
+          {% for member in project.team_members.all %}
+            <div class="member-card">
+              <div class="member-avatar">
+                {{ member.name|slice:":1" }}
+              </div>
+              <div class="member-info">
+                <div class="member-name">{{ member.name }}</div>
+                <div class="member-role">{{ member.title }}</div>
+              </div>
+            </div>
+          {% empty %}
+            <p style="grid-column: 1 / -1; color: #aaa;">No team members yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
+  <script>
+    // Initialize particles
+    particlesJS("particles-js", {
+      particles: {
+        number: { value: 60, density: { enable: true, value_area: 800 } },
+        color: { value: "#00cfff" },
+        shape: { type: "circle" },
+        opacity: { value: 0.5 },
+        size: { value: 3, random: true },
+        line_linked: {
+          enable: true,
+          distance: 150,
+          color: "#00cfff",
+          opacity: 0.4,
+          width: 1
+        },
+        move: { enable: true, speed: 2, out_mode: "bounce" }
+      },
+      interactivity: {
+        events: {
+          onhover: { enable: true, mode: "grab" },
+          onclick: { enable: true, mode: "push" }
+        },
+        modes: {
+          grab: { distance: 140, line_linked: { opacity: 1 } },
+          push: { particles_nb: 4 }
+        }
+      },
+      retina_detect: true
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}VibeZone{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  {% load static %}
+
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <div id="particles-js"></div>
+
+  <div class="home-container">
+    <nav class="navbar">
+      <a href="{% url 'home' %}">
+        <img src="{% static 'assets/logo.png' %}" alt="VibeZ Logo" style="height: 50px;" />
+      </a>
+
+      <div style="display: flex; align-items: center; gap: 2rem;">
+        <div class="nav-links">
+          <a href="{% url 'projects_list' %}"><i class="fas fa-briefcase"></i> Projects</a>
+          <a href=""><i class="fas fa-user"></i> Profile</a>
+        </div>
+
+        <div id="guest-section">
+          {% if user.is_authenticated %}
+            <form method="post" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button class="login-button" type="submit">Logout</button>
+            </form>
+          {% else %}
+            <a href="{% url 'login' %}" class="login-button">Login</a>
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+
+    {% block content %}{% endblock %}
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
+  <script src="{% static 'js/main.js' %}">
+     particlesJS("particles-js", {
+      particles: {
+        number: { value: 60, density: { enable: true, value_area: 800 } },
+        color: { value: "#00cfff" },
+        shape: { type: "circle" },
+        opacity: { value: 0.5 },
+        size: { value: 3, random: true },
+        line_linked: {
+          enable: true,
+          distance: 150,
+          color: "#00cfff",
+          opacity: 0.4,
+          width: 1
+        },
+        move: { enable: true, speed: 2, out_mode: "bounce" }
+      },
+      interactivity: {
+        events: {
+          onhover: { enable: true, mode: "grab" },
+          onclick: { enable: true, mode: "push" }
+        },
+        modes: {
+          grab: { distance: 140, line_linked: { opacity: 1 } },
+          push: { particles_nb: 4 }
+        }
+      },
+      retina_detect: true
+    });
+  </script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

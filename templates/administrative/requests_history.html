@@ -1,0 +1,61 @@
+# templates/administrative/requests_history.html
+{% extends 'administrative/base.html' %}
+
+{% block content %}
+<h1>Check-in Requests History</h1>
+
+<form method="get" style="background: #f0f0f0; padding: 10px; margin: 10px 0;">
+    <label>Status: 
+        <select name="status">
+            <option value="">All Statuses</option>
+            {% for value, label in status_choices %}
+            <option value="{{ value }}" {% if value == filters.status %}selected{% endif %}>
+                {{ label }}
+            </option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>User: 
+        <select name="user_id">
+            <option value="">All Users</option>
+            {% for user in users %}
+            <option value="{{ user.id }}" {% if user.id|stringformat:"s" == filters.user_id %}selected{% endif %}>
+                {{ user.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </label>
+    <button type="submit">Filter</button>
+    <a href="{% url 'administrative:requests_history' %}">Clear</a>
+</form>
+
+<table border="1" style="width: 100%; border-collapse: collapse;">
+    <tr>
+        <th>User</th>
+        <th>Request Time</th>
+        <th>Status</th>
+        <th>User Notes</th>
+        <th>Admin Notes</th>
+        <th>Approved By</th>
+        <th>Approved At</th>
+    </tr>
+    {% for request in requests %}
+    <tr>
+        <td>{{ request.user.name }}</td>
+        <td>{{ request.request_timestamp }}</td>
+        <td>
+            {% if request.status == 'PENDING' %}🟡{% elif request.status == 'APPROVED' %}✅{% else %}❌{% endif %}
+            {{ request.get_status_display|default:request.status }}
+        </td>
+        <td>{{ request.user_notes|default:"-" }}</td>
+        <td>{{ request.admin_notes|default:"-" }}</td>
+        <td>{{ request.approved_by.username|default:"-" }}</td>
+        <td>{{ request.approved_at|default:"-" }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="7">No requests found</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

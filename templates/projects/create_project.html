@@ -1,0 +1,595 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Project | VibeZone</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Bungee', cursive;
+      background-color: #0d0d0d;
+      color: #ffffff;
+      overflow-x: hidden;
+    }
+
+    #particles-js {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      padding: 2rem 1rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: #0d0d0d;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      max-width: 1200px;
+      margin: auto;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      font-size: 1rem;
+    }
+
+    .nav-links a {
+      color: #ffffff;
+      text-decoration: none;
+      opacity: 0.8;
+      transition: opacity 0.3s;
+    }
+
+    .nav-links a:hover {
+      opacity: 1;
+    }
+
+    .login-button {
+      padding: 0.5rem 1rem;
+      background: linear-gradient(135deg, #9b30d9, #00cfff);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0, 207, 255, 0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .login-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(0, 207, 255, 0.5);
+    }
+
+    /* Form specific styles */
+    .form-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .form-header h2 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      color: #ffffff;
+      text-shadow: 0 0 10px #00cfff, 0 0 20px #9b30d9;
+    }
+
+    .form-header p {
+      color: #ccc;
+      margin-bottom: 1.5rem;
+    }
+
+    .project-form {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #00cfff;
+      font-size: 1rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.8rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(0, 207, 255, 0.3);
+      border-radius: 8px;
+      color: #ffffff;
+      font-size: 1rem;
+      transition: border-color 0.3s, box-shadow 0.3s;
+      box-sizing: border-box;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #00cfff;
+      box-shadow: 0 0 0 2px rgba(0, 207, 255, 0.2);
+    }
+
+    textarea.form-control {
+      min-height: 150px;
+      resize: vertical;
+    }
+
+    select.form-control {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2300cfff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 20px;
+      padding-right: 40px;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .remove-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .remove-btn:hover {
+      background: rgba(255, 0, 0, 0.7);
+    }
+
+    .team-members {
+      margin-top: 1rem;
+    }
+
+    .team-member {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .team-member .avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #9b30d9, #00cfff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      margin-right: 1rem;
+      font-size: 0.8rem;
+    }
+
+    .team-member .name {
+      flex-grow: 1;
+    }
+
+    .team-member .remove-member {
+      background: none;
+      border: none;
+      color: #ff4d4d;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .add-member {
+      display: flex;
+      margin-top: 1rem;
+      gap: 0.5rem;
+    }
+
+    .add-member input {
+      flex-grow: 1;
+    }
+
+    .add-member button {
+      background: linear-gradient(135deg, #9b30d9, #00cfff);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0 1rem;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .add-member button:hover {
+      transform: scale(1.05);
+    }
+
+    .submit-btn {
+      display: block;
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, #9b30d9, #00cfff);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(0, 207, 255, 0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      margin-top: 2rem;
+    }
+
+    .submit-btn:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 25px rgba(0, 207, 255, 0.5);
+    }
+
+    .back-btn {
+      display: inline-block;
+      margin-top: 1.5rem;
+      color: #00cfff;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .back-btn i {
+      margin-right: 0.5rem;
+    }
+
+    .back-btn:hover {
+      color: #9b30d9;
+    }
+
+    /* File input styling */
+    .file-input {
+      width: 0.1px;
+      height: 0.1px;
+      opacity: 0;
+      overflow: hidden;
+      position: absolute;
+      z-index: -1;
+    }
+
+    .file-input-label {
+      cursor: pointer;
+      display: block;
+      width: 100%;
+    }
+
+    .preview-container.active {
+      display: block;
+    }
+
+    .opt {
+      background-color: black;
+    }
+
+    .error-message {
+      color: #ff4d4d;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+
+    .success-message {
+      color: #4CAF50;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="particles-js"></div>
+
+  <div class="container">
+    <nav class="navbar">
+      <a href="{% url 'home' %}">
+        <img src="{% static 'assets/logo.png' %}" alt="VibeZ Logo" style="height: 50px;" />
+      </a>
+    
+      <div style="display: flex; align-items: center; gap: 2rem;">
+        <div class="nav-links">
+          <a href="{% url 'projects_list' %}"><i class="fas fa-briefcase"></i> Projects</a>
+          <a href="{% url 'notifications_list' %}" class="active">
+            <i class="fas fa-bell"></i> Notifications
+            {% if unread_count > 0 %}
+              <span id="notification-count" style="display: flex; align-items: center; justify-content: center; background: #9b30d9; color: white; width: 20px; height: 20px; border-radius: 50%; font-size: 0.8rem; margin-left: 5px;">{{ unread_count }}</span>
+            {% endif %}
+          </a>
+          <a href="{% url 'profile' %}"><i class="fas fa-user"></i> Profile</a>
+        </div>
+        
+        <div id="guest-section">
+          <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button class="login-button" type="submit">Logout</button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="form-header">
+      <h2>Create Project</h2>
+      <p>Share your ideas and find collaborators</p>
+      {% if message %}
+      <p>{{ message }}</p>
+      {% endif %}
+      <div id="message-container"></div>
+    </div>
+
+    <form class="project-form" id="projectForm" method="post" enctype="multipart/form-data" action="{% url 'create_project' %}">
+  {% csrf_token %}
+  <div class="form-group">
+    <label for="projectName">Project Name</label>
+    <input type="text" class="form-control" id="projectName" name="name" required>
+  </div>
+
+  <div class="form-group">
+    <label for="projectDescription">Description</label>
+    <textarea class="form-control" id="projectDescription" name="description" required></textarea>
+  </div>
+
+  <div class="form-group">
+    <label for="projectField">Working Field</label>
+    <select class="form-control" id="projectField" name="working_field" required>
+      <option class="opt" value="" disabled selected>Select a field</option>
+      <option class="opt" value="AI">Artificial Intelligence</option>
+      <option class="opt" value="ML">Machine Learning</option>
+      <option class="opt" value="WEB">Web Development</option>
+      <option class="opt" value="MOB">Mobile Development</option>
+      <option class="opt" value="GAME">Game Development</option>
+      <option class="opt" value="DATA">Data Science</option>
+      <option class="opt" value="IOT">Internet of Things</option>
+      <option class="opt" value="CYBER">Cybersecurity</option>
+      <option class="opt" value="VLSI">VLSI</option>
+      <option class="opt" value="OTHER">Other</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="githubLink">GitHub Link</label>
+    <input type="url" class="form-control" id="githubLink" name="github_link" placeholder="https://github.com/yourusername/repo">
+  </div>
+
+  <div class="form-group">
+    <label>Team Members</label>
+    <div class="team-members" id="teamMembers">
+      <!-- Team members will be added here dynamically -->
+    </div>
+    <div class="add-member">
+      <input type="text" class="form-control" id="memberUsername" placeholder="Enter Email (Only Registered Users)">
+      <button type="button" id="addMemberBtn">Add</button>
+    </div>
+    <div id="memberError" class="error-message" style="display: none;"></div>
+    <div id="memberSuccess" class="success-message" style="display: none;"></div>
+    <!-- Hidden inputs for team members will be added dynamically by JavaScript -->
+  </div>
+
+  <button type="submit" class="submit-btn">Create Project</button>
+</form>
+
+    <a href="{% url 'projects_list' %}" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Projects</a>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
+  <script>
+    // Initialize particles
+// Initialize particles
+particlesJS("particles-js", {
+  particles: {
+    number: { value: 60, density: { enable: true, value_area: 800 } },
+    color: { value: "#00cfff" },
+    shape: { type: "circle" },
+    opacity: { value: 0.5 },
+    size: { value: 3, random: true },
+    line_linked: {
+      enable: true,
+      distance: 150,
+      color: "#00cfff",
+      opacity: 0.4,
+      width: 1
+    },
+    move: { enable: true, speed: 2, out_mode: "bounce" }
+  },
+  interactivity: {
+    events: {
+      onhover: { enable: true, mode: "grab" },
+      onclick: { enable: true, mode: "push" }
+    },
+    modes: {
+      grab: { distance: 140, line_linked: { opacity: 1 } },
+      push: { particles_nb: 4 }
+    }
+  },
+  retina_detect: true
+});
+
+// Team Members Management
+let teamMembers = [];
+
+// Add team member functionality
+document.getElementById('addMemberBtn').addEventListener('click', function() {
+  const memberInput = document.getElementById('memberUsername');
+  const memberEmail = memberInput.value.trim();
+  
+  if (memberEmail) {
+    if (validateEmail(memberEmail)) {
+      if (!teamMembers.includes(memberEmail)) {
+        addTeamMember(memberEmail);
+        memberInput.value = '';
+        showMessage('memberSuccess', 'Team member added successfully!');
+        hideMessage('memberError');
+      } else {
+        showMessage('memberError', 'This member is already added.');
+        hideMessage('memberSuccess');
+      }
+    } else {
+      showMessage('memberError', 'Please enter a valid email address.');
+      hideMessage('memberSuccess');
+    }
+  }
+});
+
+// Allow Enter key to add member
+document.getElementById('memberUsername').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    document.getElementById('addMemberBtn').click();
+  }
+});
+
+function validateEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+function showMessage(elementId, message) {
+  const element = document.getElementById(elementId);
+  element.textContent = message;
+  element.style.display = 'block';
+  setTimeout(() => {
+    element.style.display = 'none';
+  }, 3000);
+}
+
+function hideMessage(elementId) {
+  document.getElementById(elementId).style.display = 'none';
+}
+
+function addTeamMember(email) {
+  // Add to team members array
+  teamMembers.push(email);
+  updateTeamMembersInput();
+  
+  const teamMembersContainer = document.getElementById('teamMembers');
+  
+  // Create team member display element
+  const memberDiv = document.createElement('div');
+  memberDiv.className = 'team-member';
+  memberDiv.dataset.email = email;
+  
+  const avatar = document.createElement('div');
+  avatar.className = 'avatar';
+  avatar.textContent = email.charAt(0).toUpperCase();
+  
+  const nameSpan = document.createElement('div');
+  nameSpan.className = 'name';
+  nameSpan.textContent = email;
+  
+  const removeBtn = document.createElement('button');
+  removeBtn.className = 'remove-member';
+  removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+  removeBtn.type = 'button';
+  
+  removeBtn.addEventListener('click', function() {
+    removeMember(email, memberDiv);
+  });
+  
+  memberDiv.appendChild(avatar);
+  memberDiv.appendChild(nameSpan);
+  memberDiv.appendChild(removeBtn);
+  
+  teamMembersContainer.appendChild(memberDiv);
+}
+
+function removeMember(email, memberDiv) {
+  // Remove from array
+  teamMembers = teamMembers.filter(member => member !== email);
+  updateTeamMembersInput();
+  
+  // Remove from DOM
+  memberDiv.remove();
+  
+  showMessage('memberSuccess', 'Team member removed successfully!');
+}
+
+function updateTeamMembersInput() {
+  // Remove existing hidden inputs for team members
+  const existingInputs = document.querySelectorAll('input[name="team_members[]"]');
+  existingInputs.forEach(input => input.remove());
+  
+  // Create individual hidden inputs for each team member
+  const form = document.getElementById('projectForm');
+  teamMembers.forEach(email => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'team_members[]';
+    input.value = email;
+    form.appendChild(input);
+  });
+  
+  console.log('Updated team members:', teamMembers);
+}
+
+// Form submission
+document.getElementById('projectForm').addEventListener('submit', function(e) {
+  // Update team members data before form submission
+  updateTeamMembersInput();
+  
+  // Debug: Log the form data being sent
+  const formData = new FormData(this);
+  console.log('Form submission data:');
+  for (let [key, value] of formData.entries()) {
+    console.log(key, ':', value);
+  }
+  
+  // Show loading state
+  const submitBtn = document.querySelector('.submit-btn');
+  const originalText = submitBtn.textContent;
+  submitBtn.textContent = 'Creating Project...';
+  submitBtn.disabled = true;
+  
+  // Re-enable button after a short delay in case of validation errors
+  setTimeout(() => {
+    submitBtn.textContent = originalText;
+    submitBtn.disabled = false;
+  }, 5000);
+});
+
+function logout() {
+  // This is handled by the Django form above
+  console.log('Logout handled by Django form');
+}
+  </script>
+</body>
+</html>

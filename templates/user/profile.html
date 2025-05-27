@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user.name }} - VibeZ Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    {% load static %}
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Bungee', cursive;
+            background-color: #0d0d0d;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+        }
+        
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background-color: #0d0d0d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            max-width: 1200px;
+            margin: auto;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .navbar h1 {
+            font-size: 2rem;
+            color: #ffffff;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            font-size: 1rem;
+        }
+
+        .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .nav-links a:hover {
+            opacity: 1;
+        }
+        
+        .profile-header {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(0, 207, 255, 0.1);
+            text-align: center;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #9b30d9, #00cfff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 2.5rem;
+            box-shadow: 0 0 20px rgba(0, 207, 255, 0.4);
+        }
+        
+        .profile-name {
+            font-size: 2rem;
+            color: #ffffff;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px #00cfff, 0 0 20px #9b30d9;
+        }
+        
+        .profile-details {
+            color: #ccc;
+            font-size: 1.1rem;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-top: 15px;
+            box-shadow: 0 0 15px rgba(0, 207, 255, 0.3);
+        }
+        
+        .status-checked-in {
+            background: linear-gradient(135deg, #00ff88, #00cfff);
+            color: #ffffff;
+        }
+        
+        .status-checked-out {
+            background: linear-gradient(135deg, #ff5e00, #ff003c);
+            color: #ffffff;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 0 20px rgba(0, 207, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 25px rgba(0, 207, 255, 0.2);
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            color: #ffffff;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-shadow: 0 0 5px rgba(0, 207, 255, 0.5);
+        }
+        
+        .hours-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+        
+        .hour-stat {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .hour-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00cfff;
+            display: block;
+            text-shadow: 0 0 10px rgba(0, 207, 255, 0.5);
+        }
+        
+        .hour-label {
+            color: #ccc;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        .check-in-section {
+            text-align: center;
+        }
+        
+        .check-in-btn {
+            background: linear-gradient(135deg, #9b30d9, #00cfff);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            box-shadow: 0 0 20px rgba(0, 207, 255, 0.4);
+        }
+        
+        .check-in-btn:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 5px 25px rgba(0, 207, 255, 0.6);
+        }
+        
+        .check-in-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .sessions-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .sessions-table th,
+        .sessions-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sessions-table th {
+            background: rgba(255, 255, 255, 0.08);
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .sessions-table td {
+            color: #ccc;
+        }
+        
+        .session-duration {
+            font-weight: bold;
+            color: #00cfff;
+            text-shadow: 0 0 5px rgba(0, 207, 255, 0.5);
+        }
+        
+        .current-session {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(0, 207, 255, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .current-duration {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #00cfff;
+            margin: 10px 0;
+            text-shadow: 0 0 15px rgba(0, 207, 255, 0.8);
+        }
+        
+        .rank-badge {
+            background: linear-gradient(135deg, #ffd700, #ffb300);
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .alert-success {
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+        
+        .alert-error {
+            background: rgba(255, 60, 0, 0.1);
+            color: #ff5e00;
+            border: 1px solid rgba(255, 60, 0, 0.3);
+        }
+
+        .academic-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #ccc;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            color: #ffffff;
+            font-size: 1rem;
+        }
+
+        .login-button {
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #9b30d9, #00cfff);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 207, 255, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .login-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 207, 255, 0.5);
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .hours-summary {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .profile-header {
+                padding: 20px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+
+            .navbar {
+                padding: 1rem;
+                flex-wrap: wrap;
+            }
+
+            .nav-links {
+                gap: 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+
+    <div class="container">
+        <!-- Navigation Bar -->
+        <nav class="navbar">
+            <a href="{% url 'home' %}">
+                <img src="{% static "assets/logo.png" %}" alt="VibeZ Logo" style="height: 50px;" />
+            </a>
+        
+            <div style="display: flex; align-items: center; gap: 2rem;">
+                <div class="nav-links">
+                    <a href="{% url 'projects_list' %}"><i class="fas fa-briefcase"></i>Projects</a>
+                    <a href="{% url 'notifications_list' %}">
+                        <i class="fas fa-bell"></i> Notifications
+                        {% if unread_count > 0 %}
+                            <span id="notification-count" style="display: flex; align-items: center; justify-content: center; background: #9b30d9; color: white; width: 20px; height: 20px; border-radius: 50%; font-size: 0.8rem; margin-left: 5px;">{{ unread_count }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="{% url 'profile' %}" class="active"><i class="fas fa-user"></i>Profile</a>
+                </div>
+                
+                <div>
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button class="login-button" type="submit">Logout</button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <h1 class="profile-name">{{ user.name }}</h1>
+            <div class="profile-details">
+                <p><i class="fas fa-envelope"></i> {{ user.email }}</p>
+                <p><i class="fas fa-phone"></i> {{ user.phone }}</p>
+            </div>
+            
+            {% if is_checked_in %}
+                <div class="status-badge status-checked-in">
+                    <i class="fas fa-check-circle"></i> Currently Checked In
+                </div>
+            {% else %}
+                <div class="status-badge status-checked-out">
+                    <i class="fas fa-times-circle"></i> Checked Out
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="grid">
+            <!-- Academic Information -->
+            <div class="card">
+                <h2 class="card-title">
+                    <i class="fas fa-graduation-cap"></i>
+                    Academic Information
+                </h2>
+                <div class="academic-info">
+                    <div class="info-item">
+                        <div class="info-label">Study Level</div>
+                        <div class="info-value">{{ user.get_study_level_display }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Specialization</div>
+                        <div class="info-value">{{ user.specialization }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">College/Institution</div>
+                        <div class="info-value">{{ user.college_name }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hours Summary -->
+            <div class="card">
+                <h2 class="card-title">
+                    <i class="fas fa-clock"></i>
+                    Hours in VibeZ
+                </h2>
+                <div class="hours-summary">
+                    <div class="hour-stat">
+                        <span class="hour-number">{{ hours_summary.lifetime|floatformat:1 }}</span>
+                        <div class="hour-label">Lifetime Hours</div>
+                    </div>
+                    <div class="hour-stat">
+                        <span class="hour-number">{{ hours_summary.past_year|floatformat:1 }}</span>
+                        <div class="hour-label">Past Year</div>
+                    </div>
+                    <div class="hour-stat">
+                        <span class="hour-number">{{ hours_summary.past_month|floatformat:1 }}</span>
+                        <div class="hour-label">Past Month</div>
+                    </div>
+                    <div class="hour-stat">
+                        <span class="hour-number">{{ week_total_hours }}</span>
+                        <div class="hour-label">This Week</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; text-align: center; color: #ccc;">
+                    <p><i class="fas fa-chart-line"></i> Daily Average (30 days): <strong style="color: #00cfff;">{{ avg_daily_hours }}h</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Recent Sessions -->
+            <div class="card">
+                <h2 class="card-title">
+                    <i class="fas fa-history"></i>
+                    Recent Sessions
+                </h2>
+                
+                {% if recent_sessions %}
+                    <table class="sessions-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Check In</th>
+                                <th>Check Out</th>
+                                <th>Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for session in recent_sessions %}
+                            <tr>
+                                <td>{{ session.check_in|date:"M d, Y" }}</td>
+                                <td>{{ session.check_in|time:"H:i" }}</td>
+                                <td>{{ session.check_out|time:"H:i" }}</td>
+                                <td class="session-duration">{{ session.hours|floatformat:2 }}h</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p style="text-align: center; color: #ccc; margin-top: 20px;">
+                        <i class="fas fa-info-circle"></i> No sessions recorded yet. Start by checking in!
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
+    <script>
+        // Initialize particles
+        particlesJS("particles-js", {
+            particles: {
+                number: { value: 60, density: { enable: true, value_area: 800 } },
+                color: { value: "#00cfff" },
+                shape: { type: "circle" },
+                opacity: { value: 0.5 },
+                size: { value: 3, random: true },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: "#00cfff",
+                    opacity: 0.4,
+                    width: 1
+                },
+                move: { enable: true, speed: 2, out_mode: "bounce" }
+            },
+            interactivity: {
+                events: {
+                    onhover: { enable: true, mode: "grab" },
+                    onclick: { enable: true, mode: "push" }
+                },
+                modes: {
+                    grab: { distance: 140, line_linked: { opacity: 1 } },
+                    push: { particles_nb: 4 }
+                }
+            },
+            retina_detect: true
+        });
+
+        // CSRF token for Django
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        const csrftoken = getCookie('csrftoken');
+        
+        function showAlert(message, type) {
+            const alertElement = document.getElementById(type + '-alert');
+            alertElement.textContent = message;
+            alertElement.style.display = 'block';
+            setTimeout(() => {
+                alertElement.style.display = 'none';
+            }, 5000);
+        }
+        
+    </script>
+</body>
+</html>
