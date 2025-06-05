@@ -362,6 +362,60 @@
                 font-size: 0.9rem;
             }
         }
+
+        .hamburger {
+            display: none;
+            font-size: 1.5rem;
+            color: #fff;
+            cursor: pointer;
+            }
+
+        #dropdownMenu {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            }
+
+        @media (max-width: 768px) {
+            .hamburger {
+                display: block;
+            }
+
+            #dropdownMenu {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                flex-direction: column;
+                background-color: #0d0d0d;
+                padding: 1rem 2rem;
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7);
+                z-index: 99;
+            }
+
+            #dropdownMenu.show {
+                display: flex;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                gap: 1rem;
+                width: 100%;
+            }
+
+            .nav-links a {
+                padding: 0.8rem 0;
+                font-size: 1rem;
+                width: 100%;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .login-button {
+                margin-top: 1rem;
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -373,24 +427,33 @@
             <a href="{% url 'home' %}">
                 <img src="{% static "assets/logo.png" %}" alt="VibeZ Logo" style="height: 50px;" />
             </a>
-        
-            <div style="display: flex; align-items: center; gap: 2rem;">
+
+            <div class="hamburger" onclick="toggleDropdown()">
+                <i class="fas fa-bars"></i>
+            </div>
+
+            <div class="nav-links-wrapper" id="dropdownMenu">
                 <div class="nav-links">
-                    <a href="{% url 'projects_list' %}"><i class="fas fa-briefcase"></i>Projects</a>
-                    <a href="{% url 'notifications_list' %}">
-                        <i class="fas fa-bell"></i> Notifications
-                        {% if unread_count > 0 %}
-                            <span id="notification-count" style="display: flex; align-items: center; justify-content: center; background: #9b30d9; color: white; width: 20px; height: 20px; border-radius: 50%; font-size: 0.8rem; margin-left: 5px;">{{ unread_count }}</span>
-                        {% endif %}
-                    </a>
-                    <a href="{% url 'profile' %}" class="active"><i class="fas fa-user"></i>Profile</a>
+                <a href="{% url 'projects_list' %}"><i class="fas fa-briefcase"></i> Projects</a>
+                {% if user.is_authenticated %}
+                <a href="{% url 'notifications_list' %}">
+                    <i class="fas fa-bell"></i> Notifications
+                    {% if unread_count > 0 %}
+                    <span id="notification-count">{{ unread_count }}</span>
+                    {% endif %}
+                </a>
+                <a href="{% url 'profile' %}"><i class="fas fa-user"></i> Profile</a>
+                {% endif %}
                 </div>
-                
                 <div>
-                    <form method="post" action="{% url 'logout' %}">
-                        {% csrf_token %}
-                        <button class="login-button" type="submit">Logout</button>
-                    </form>
+                {% if user.is_authenticated %}
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button class="login-button" type="submit">Logout</button>
+                </form>
+                {% else %}
+                <a href="{% url 'login' %}"><button class="login-button">Login/Register</button></a>
+                {% endif %}
                 </div>
             </div>
         </nav>
@@ -567,7 +630,10 @@
                 alertElement.style.display = 'none';
             }, 5000);
         }
-        
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdownMenu');
+            dropdown.classList.toggle('show');
+        }
     </script>
 </body>
 </html>

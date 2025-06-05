@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-ofql(fvi5@z^d3^f8n6cz7x7=^wblu*q_)tpvkb-)^bz@450@c'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['vibezconnect.in', 'www.vibezconnect.in', '147.79.70.103']
 
 
 # Application definition
@@ -80,11 +80,25 @@ WSGI_APPLICATION = 'Vibez.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'u432276465_Vibez',
+	'USER': 'u432276465_Vibez',
+	'PASSWORD': '36900@Database',
+	'HOST': '193.203.184.63',
+	'PORT': '3306',
+	'OPTIONS': {
+		'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+    },
+  }
 }
 
+# Add this to your CACHES setting if not already present
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

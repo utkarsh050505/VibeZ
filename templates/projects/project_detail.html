@@ -305,38 +305,6 @@
   <div id="particles-js"></div>
 
   <div class="container">
-    <nav class="navbar">
-      <a href="{% url 'home' %}">
-        <img src="{% static 'assets/logo.png' %}" alt="VibeZ Logo" style="height: 50px;" />
-      </a>
-    
-      <div style="display: flex; align-items: center; gap: 2rem;">
-        <div class="nav-links">
-          <a href="{% url 'projects_list' %}"><i class="fas fa-briefcase"></i> Projects</a>
-         {% if user.is_authenticated %}
-            <a href="{% url 'notifications_list' %}">
-              <i class="fas fa-bell"></i> Notifications
-              {% if unread_count > 0 %}
-              <span id="notification-count" style="display: flex; align-items: center; justify-content: center; background: #9b30d9; color: white; width: 20px; height: 20px; border-radius: 50%; font-size: 0.8rem; margin-left: 5px;">{{ unread_count }}</span>
-              {% endif %}
-              </a>
-            <a href="{% url 'profile' %}" class="active"><i class="fas fa-user"></i>Profile</a>
-          {% endif %}
-        </div>
-        
-        <!-- Guest section (shown when not logged in) -->
-        <div id="guest-section">
-          {% if user.is_authenticated %}
-              <form method="post" action="{% url 'logout' %}">
-                {% csrf_token %}
-                <button class="login-button" type="submit">Logout</button>
-              </form>
-            {% else %}
-            <a href="{% url 'login' %}"><button class="login-button">Login/Register</button></a>
-          {% endif %}
-        </div>
-      </div>
-    </nav>
 
     <a href="{% url 'projects_list' %}" class="back-button">
       <i class="fas fa-arrow-left"></i> Back to Projects

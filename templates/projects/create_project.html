@@ -322,31 +322,6 @@
   <div id="particles-js"></div>
 
   <div class="container">
-    <nav class="navbar">
-      <a href="{% url 'home' %}">
-        <img src="{% static 'assets/logo.png' %}" alt="VibeZ Logo" style="height: 50px;" />
-      </a>
-    
-      <div style="display: flex; align-items: center; gap: 2rem;">
-        <div class="nav-links">
-          <a href="{% url 'projects_list' %}"><i class="fas fa-briefcase"></i> Projects</a>
-          <a href="{% url 'notifications_list' %}" class="active">
-            <i class="fas fa-bell"></i> Notifications
-            {% if unread_count > 0 %}
-              <span id="notification-count" style="display: flex; align-items: center; justify-content: center; background: #9b30d9; color: white; width: 20px; height: 20px; border-radius: 50%; font-size: 0.8rem; margin-left: 5px;">{{ unread_count }}</span>
-            {% endif %}
-          </a>
-          <a href="{% url 'profile' %}"><i class="fas fa-user"></i> Profile</a>
-        </div>
-        
-        <div id="guest-section">
-          <form method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button class="login-button" type="submit">Logout</button>
-          </form>
-        </div>
-      </div>
-    </nav>
 
     <div class="form-header">
       <h2>Create Project</h2>

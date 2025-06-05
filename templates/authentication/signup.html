@@ -12,7 +12,7 @@
       margin: 0;
       padding: 0;
       height: 100%;
-      font-family: 'sans-serif', cursive;
+      font-family: 'sans-serif';
       background-color: #0d0d0d;
       color: #ffffff;
       overflow: hidden;
@@ -105,8 +105,164 @@
       font-size: 0.9rem;
     }
 
+    select.form-control {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      padding-right: 2rem;
+      white-space: normal;
+      overflow: visible;
+      text-overflow: unset;
+      height: auto;
+      line-height: 1.5;
+    }
+
+    option {
+      background-color: #0d0d0d;
+      color: #fff;
+      white-space: normal;
+      padding: 10px;
+      font-size: 1rem;
+    }
+
     .back-to-home i { margin-right: 0.5rem; }
     .back-to-home:hover { color: #fff; }
+
+    /* OTP Styles */
+    .email-otp-container {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-end;
+    }
+    
+    .email-input-wrapper {
+      flex: 1;
+    }
+    
+    .send-otp-btn {
+      padding: 0.8rem 1rem;
+      background: linear-gradient(135deg, #28a745, #20c997);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      min-width: 100px;
+      height: 48px;
+    }
+    
+    .send-otp-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 10px rgba(40, 167, 69, 0.4);
+    }
+    
+    .send-otp-btn:disabled {
+      background: rgba(255,255,255,0.1);
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    
+    .otp-container {
+      display: none;
+      margin-top: 1rem;
+      animation: slideDown 0.3s ease-out;
+    }
+    
+    .otp-container.show {
+      display: block;
+    }
+    
+    .otp-inputs {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    
+    .otp-input {
+      width: 50px;
+      height: 50px;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      background: rgba(255,255,255,0.1);
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      color: #fff;
+      transition: all 0.3s ease;
+    }
+    
+    .otp-input:focus {
+      outline: none;
+      border-color: #9b30d9;
+      box-shadow: 0 0 0 2px rgba(155,48,217,0.2);
+      transform: scale(1.05);
+    }
+    
+    .otp-input.filled {
+      border-color: #28a745;
+      background: rgba(40, 167, 69, 0.1);
+    }
+    
+    .otp-timer {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #ccc;
+      margin-bottom: 0.5rem;
+    }
+    
+    .resend-otp {
+      text-align: center;
+      color: #00cfff;
+      cursor: pointer;
+      font-size: 0.9rem;
+      text-decoration: underline;
+    }
+    
+    .resend-otp:hover {
+      color: #9b30d9;
+    }
+    
+    .resend-otp.disabled {
+      color: #666;
+      cursor: not-allowed;
+      text-decoration: none;
+    }
+    
+    .otp-status {
+      text-align: center;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+    
+    .otp-success {
+      color: #28a745;
+    }
+    
+    .otp-error {
+      color: #dc3545;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .invalid-feedback-phone, .invalid-feedback-email {
+      color: #dc3545;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
   </style>
 </head>
 <body>
@@ -133,8 +289,25 @@
         </div>
         <div class="form-group">
           <label for="email">Email</label>
-          <input name="email" type="email" id="email" class="form-control" placeholder="Enter your email address" required>
-          <div class="invalid-feedback-email" style="display: none;">
+          <div class="email-otp-container">
+            <div class="email-input-wrapper">
+              <input name="email" type="email" id="email" class="form-control" placeholder="Enter your email address" required>
+              <div class="invalid-feedback-email" style="display: none;">
+              </div>
+            </div>
+            <button type="button" id="send-otp-btn" class="send-otp-btn" disabled>Send OTP</button>
+          </div>
+          
+          <div id="otp-container" class="otp-container">
+            <div class="otp-timer" id="otp-timer"></div>
+            <div class="otp-inputs">
+              <input type="text" class="otp-input" maxlength="1" data-index="0">
+              <input type="text" class="otp-input" maxlength="1" data-index="1">  
+              <input type="text" class="otp-input" maxlength="1" data-index="2">
+              <input type="text" class="otp-input" maxlength="1" data-index="3">
+            </div>
+            <div class="resend-otp disabled" id="resend-otp">Resend OTP</div>
+            <div class="otp-status" id="otp-status"></div>
           </div>
         </div>
         <div class="form-group">
@@ -160,7 +333,8 @@
           <input type="password" name="password" id="password" class="form-control" placeholder="Choose a password" required>
           <small class="float-right py-3 toggleView" style="cursor: pointer;">SHOW</small>
         </div>
-        <button type="submit" class="submit-btn">Register</button>
+        <input type="hidden" name="email_verified" id="email-verified" value="false">
+        <button type="submit" class="submit-btn" id="register-btn" disabled>Register</button>
       </form>
     </div>
     <p class="back-to-home">Already Registered ? <a href="{% url 'login' %}" class="" style="text-decoration: none; margin-left: 5px; color: #f0f0f0">Login</a></p>
@@ -198,40 +372,125 @@
       retina_detect: true
     });
 
+    // DOM elements
+    const phoneField = document.querySelector('#phone');
+    const phoneFeedbackField = document.querySelector(".invalid-feedback-phone");
+    const emailField = document.querySelector("#email");
+    const emailFeedbackField = document.querySelector(".invalid-feedback-email");
+    const passwordField = document.querySelector('#password');
+    const passwordToggleView = document.querySelector(".toggleView");
+    const submitButton = document.querySelector(".submit-btn");
+    const sendOtpBtn = document.querySelector("#send-otp-btn");
+    const otpContainer = document.querySelector("#otp-container");
+    const otpInputs = document.querySelectorAll(".otp-input");
+    const otpTimer = document.querySelector("#otp-timer");
+    const resendOtp = document.querySelector("#resend-otp");
+    const otpStatus = document.querySelector("#otp-status");
+    const emailVerifiedInput = document.querySelector("#email-verified");
+    const registerBtn = document.querySelector("#register-btn");
 
-    // Correctly reference DOM elements
-const phoneField = document.querySelector('#phone');
-const phoneFeedbackField = document.querySelector(".invalid-feedback-phone");
-const emailField = document.querySelector("#email");
-const emailFeedbackField = document.querySelector(".invalid-feedback-email");
-const passwordField = document.querySelector('#password');
-const passwordToggleView = document.querySelector(".toggleView");
-const submitButton = document.querySelector(".submit-btn");
+    // State variables
+    let emailValid = false;
+    let otpSent = false;
+    let otpVerified = false;
+    let timerInterval = null;
+    let timeRemaining = 0;
 
-// Password toggle functionality
-const handleToggle = (event) => {
-    if (passwordToggleView.textContent == 'SHOW') {
-        passwordToggleView.textContent = 'HIDE';
-        passwordField.setAttribute("type", "text");
+    // Password toggle functionality
+    const handleToggle = (event) => {
+        if (passwordToggleView.textContent == 'SHOW') {
+            passwordToggleView.textContent = 'HIDE';
+            passwordField.setAttribute("type", "text");
+        }
+        else {
+            passwordToggleView.textContent = 'SHOW';
+            passwordField.setAttribute("type", "password");
+        }
     }
-    else {
-        passwordToggleView.textContent = 'SHOW';
-        passwordField.setAttribute("type", "password");
-    }
-}
 
-passwordToggleView.addEventListener('click', handleToggle);
+    passwordToggleView.addEventListener('click', handleToggle);
 
-// Email validation
-emailField.addEventListener('keyup', (event) => {
-    const emailVal = event.target.value;
-    emailField.classList.remove("is-invalid");
-    emailFeedbackField.style.display = "none";
-    emailFeedbackField.innerHTML = ``;
+    // Email validation
+    emailField.addEventListener('keyup', (event) => {
+        const emailVal = event.target.value;
+        emailField.classList.remove("is-invalid");
+        emailFeedbackField.style.display = "none";
+        emailFeedbackField.innerHTML = ``;
+        emailValid = false;
+        sendOtpBtn.disabled = true;
+        otpVerified = false;
+        hideOtpContainer();
+        updateRegisterButton();
 
-    if (emailVal.length > 0) {
-        fetch('/authentication/validate-email', {
-            body: JSON.stringify({email: emailVal}),
+        if (emailVal.length > 0) {
+            fetch('/authentication/validate-email', {
+                body: JSON.stringify({email: emailVal}),
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.email_error) {
+                    emailField.classList.add("is-invalid");
+                    emailFeedbackField.style.display = "block";
+                    emailFeedbackField.innerHTML = `<p>${data.email_error}</p>`;
+                    emailValid = false;
+                    sendOtpBtn.disabled = true;
+                } else { 
+                    emailValid = true;
+                    sendOtpBtn.disabled = false;
+                }
+                updateRegisterButton();
+            })
+            .catch(error => {
+                console.error('Email validation error:', error);
+            });
+        }
+    });
+
+    // Phone validation
+    phoneField.addEventListener('keyup', (event) => {
+        const phoneVal = event.target.value;
+        phoneField.classList.remove('is-invalid');
+        phoneFeedbackField.style.display = 'none';
+        phoneFeedbackField.innerHTML = ``;
+        
+        if (phoneVal.length > 0) {
+            fetch('/authentication/validate-phone', {
+                body: JSON.stringify({phone: phoneVal}),
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.phone_error) {
+                    phoneField.classList.add('is-invalid');
+                    phoneFeedbackField.style.display = 'block';
+                    phoneFeedbackField.innerHTML = `<p>${data.phone_error}</p>`;
+                } 
+            })
+            .catch(error => {
+                console.error('Phone validation error:', error);
+            });
+        }
+    });
+
+    // Send OTP functionality
+    sendOtpBtn.addEventListener('click', () => {
+        if (!emailValid) return;
+        
+        const email = emailField.value;
+        sendOtpBtn.disabled = true;
+        sendOtpBtn.textContent = 'Sending...';
+        
+        fetch('/authentication/send-otp', {
+            body: JSON.stringify({email: email}),
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -240,31 +499,94 @@ emailField.addEventListener('keyup', (event) => {
         })
         .then(response => response.json())
         .then(data => {
-            if (data.email_error) {
-                emailField.classList.add("is-invalid");
-                emailFeedbackField.style.display = "block";
-                emailFeedbackField.innerHTML = `<p>${data.email_error}</p>`;
-                submitButton.setAttribute("disabled", true)
-            } else { 
-                submitButton.removeAttribute("disabled") 
+            if (data.success) {
+                showOtpContainer();
+                startTimer(300); // 5 minutes
+                otpStatus.className = 'otp-status otp-success';
+                otpStatus.textContent = 'OTP sent successfully!';
+                sendOtpBtn.textContent = 'OTP Sent';
+                otpSent = true;
+            } else {
+                otpStatus.className = 'otp-status otp-error';
+                otpStatus.textContent = data.error || 'Failed to send OTP';
+                sendOtpBtn.disabled = false;
+                sendOtpBtn.textContent = 'Send OTP';
             }
         })
         .catch(error => {
-            console.error('Email validation error:', error);
+            console.error('OTP send error:', error);
+            otpStatus.className = 'otp-status otp-error';
+            otpStatus.textContent = 'Network error. Please try again.';
+            sendOtpBtn.disabled = false;
+            sendOtpBtn.textContent = 'Send OTP';
         });
-    }
-});
+    });
 
-// Phone validation - fixed variable names and added proper headers
-phoneField.addEventListener('keyup', (event) => {
-    const phoneVal = event.target.value;
-    phoneField.classList.remove('is-invalid');
-    phoneFeedbackField.style.display = 'none';
-    phoneFeedbackField.innerHTML = ``;
-    
-    if (phoneVal.length > 0) {
-        fetch('/authentication/validate-phone', {
-            body: JSON.stringify({phone: phoneVal}),
+    // OTP input handling
+    otpInputs.forEach((input, index) => {
+        input.addEventListener('input', (e) => {
+            const value = e.target.value;
+            
+            // Only allow numbers
+            if (!/^\d$/.test(value) && value !== '') {
+                e.target.value = '';
+                return;
+            }
+            
+            if (value) {
+                input.classList.add('filled');
+                // Move to next input
+                if (index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+            } else {
+                input.classList.remove('filled');
+            }
+            
+            // Check if all inputs are filled
+            const allFilled = Array.from(otpInputs).every(inp => inp.value.length === 1);
+            if (allFilled) {
+                verifyOtp();
+            }
+        });
+        
+        input.addEventListener('keydown', (e) => {
+            // Handle backspace
+            if (e.key === 'Backspace' && !input.value && index > 0) {
+                otpInputs[index - 1].focus();
+                otpInputs[index - 1].value = '';
+                otpInputs[index - 1].classList.remove('filled');
+            }
+        });
+        
+        input.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const pasteData = e.clipboardData.getData('text');
+            const digits = pasteData.replace(/\D/g, '').slice(0, 4);
+            
+            digits.split('').forEach((digit, i) => {
+                if (otpInputs[i]) {
+                    otpInputs[i].value = digit;
+                    otpInputs[i].classList.add('filled');
+                }
+            });
+            
+            if (digits.length === 4) {
+                verifyOtp();
+            }
+        });
+    });
+
+    // Verify OTP
+    function verifyOtp() {
+        const otp = Array.from(otpInputs).map(input => input.value).join('');
+        if (otp.length !== 4) return;
+        
+        fetch('/authentication/verify-otp', {
+            body: JSON.stringify({
+                email: emailField.value,
+                otp: otp
+            }),
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -273,20 +595,143 @@ phoneField.addEventListener('keyup', (event) => {
         })
         .then(response => response.json())
         .then(data => {
-            if (data.phone_error) {
-                phoneField.classList.add('is-invalid');
-                phoneFeedbackField.style.display = 'block';
-                phoneFeedbackField.innerHTML = `<p>${data.phone_error}</p>`;
-                submitButton.setAttribute("disabled", true);
-            } else { 
-                submitButton.removeAttribute("disabled"); 
+            if (data.success) {
+                otpStatus.className = 'otp-status otp-success';
+                otpStatus.textContent = 'Email verified successfully!';
+                otpVerified = true;
+                emailVerifiedInput.value = 'true';
+                
+                // Add success styling to inputs
+                otpInputs.forEach(input => {
+                    input.style.borderColor = '#28a745';
+                    input.style.backgroundColor = 'rgba(40, 167, 69, 0.2)';
+                });
+                
+                clearInterval(timerInterval);
+                otpTimer.textContent = 'Verified ✓';
+                otpTimer.style.color = '#28a745';
+            } else {
+                otpStatus.className = 'otp-status otp-error';
+                otpStatus.textContent = data.error || 'Invalid OTP';
+                otpVerified = false;
+                emailVerifiedInput.value = 'false';
+                
+                // Add error styling and clear inputs
+                otpInputs.forEach(input => {
+                    input.style.borderColor = '#dc3545';
+                    input.value = '';
+                    input.classList.remove('filled');
+                });
+                otpInputs[0].focus();
+            }
+            updateRegisterButton();
+        })
+        .catch(error => {
+            console.error('OTP verification error:', error);
+            otpStatus.className = 'otp-status otp-error';
+            otpStatus.textContent = 'Network error. Please try again.';
+        });
+    }
+
+    // Resend OTP
+    resendOtp.addEventListener('click', () => {
+        if (resendOtp.classList.contains('disabled')) return;
+        
+        const email = emailField.value;
+        resendOtp.textContent = 'Sending...';
+        
+        fetch('/authentication/send-otp', {
+            body: JSON.stringify({email: email}),
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                startTimer(300);
+                otpStatus.className = 'otp-status otp-success';
+                otpStatus.textContent = 'OTP resent successfully!';
+                clearOtpInputs();
+            } else {
+                otpStatus.className = 'otp-status otp-error';
+                otpStatus.textContent = data.error || 'Failed to resend OTP';
+                resendOtp.textContent = 'Resend OTP';
+                resendOtp.classList.remove('disabled');
             }
         })
         .catch(error => {
-            console.error('Phone validation error:', error);
+            console.error('OTP resend error:', error);
+            otpStatus.className = 'otp-status otp-error';
+            otpStatus.textContent = 'Network error. Please try again.';
+            resendOtp.textContent = 'Resend OTP';
+            resendOtp.classList.remove('disabled');
+        });
+    });
+
+    // Timer functions
+    function startTimer(seconds) {
+        timeRemaining = seconds;
+        resendOtp.classList.add('disabled');
+        
+        timerInterval = setInterval(() => {
+            timeRemaining--;
+            const minutes = Math.floor(timeRemaining / 60);
+            const secs = timeRemaining % 60;
+            otpTimer.textContent = `Resend OTP in ${minutes}:${secs.toString().padStart(2, '0')}`;
+            
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                otpTimer.textContent = 'OTP expired. Please request a new one.';
+                resendOtp.textContent = 'Resend OTP';
+                resendOtp.classList.remove('disabled');
+                otpStatus.className = 'otp-status otp-error';
+                otpStatus.textContent = 'OTP expired. Please request a new one.';
+                clearOtpInputs();
+            }
+        }, 1000);
+    }
+
+    // Utility functions
+    function showOtpContainer() {
+        otpContainer.classList.add('show');
+        otpInputs[0].focus();
+    }
+
+    function hideOtpContainer() {
+        otpContainer.classList.remove('show');
+        clearInterval(timerInterval);
+        clearOtpInputs();
+        otpStatus.textContent = '';
+        otpTimer.textContent = '';
+        sendOtpBtn.textContent = 'Send OTP';
+        resendOtp.textContent = 'Resend OTP';
+        resendOtp.classList.add('disabled');
+    }
+
+    function clearOtpInputs() {
+        otpInputs.forEach(input => {
+            input.value = '';
+            input.classList.remove('filled');
+            input.style.borderColor = '';
+            input.style.backgroundColor = '';
         });
     }
-});
+
+    function updateRegisterButton() {
+        registerBtn.disabled = !(emailValid && otpVerified);
+    }
+
+    // Form submission validation
+    document.getElementById('registration-form').addEventListener('submit', (e) => {
+        if (!otpVerified) {
+            e.preventDefault();
+            alert('Please verify your email with OTP before registering.');
+            return false;
+        }
+    });
   </script>
 </body>
 </html>

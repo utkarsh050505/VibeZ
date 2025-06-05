@@ -118,7 +118,9 @@
       {% endif %}
 
       {% if messages %}
-      <p>{{ messages }}</p>
+        {% for message in messages %}
+          <p>{{ message }}</p>
+        {% endfor %}
       {% endif %}
       <form id="registration-form" action="{% url 'login' %}" method="post">
         {% csrf_token %}
