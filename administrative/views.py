@@ -3,44 +3,53 @@ from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.contrib import auth
+from django.contrib.auth import authenticate, login, logout
 from django.utils import timezone
 from django.http import JsonResponse
 import json
 from authentication.models import CoworkingUser, CoworkingSession, CheckInRequest
 from projects.models import Project
 from notification.models import AdminNotification
+from django.db import IntegrityError
 
 def is_administrative_user(user):
-    """Check if user has administrative privileges"""
-    return user
+    return user.is_authenticated and user.username == "vibez-desk"
 
 def admin_login(request):
+    if request.user.is_authenticated and request.user.username == "vibez-desk":
+        return redirect('administrative:dashboard')
+
     if request.method == 'GET':
         return render(request, 'administrative/login.html')
+
+    expected_username = "vibez-desk"
+    expected_password = "vibez-connect@00319"
+
+    input_username = request.POST.get("username")
+    input_password = request.POST.get("password")
+
+    if input_username != expected_username or input_password != expected_password:
+        return render(request, 'administrative/login.html', {'message': 'Invalid credentials'})
+
+    user = CoworkingUser.objects.filter(username=expected_username).first()
+
+    if not user:
+        try:
+            user = CoworkingUser.objects.create_user(
+                username=expected_username,
+                email='vibezconnect610@gmail.com',
+                password=expected_password
+            )
+        except IntegrityError:
+            user = CoworkingUser.objects.filter(username=expected_username).first()
+
+    user = authenticate(username=expected_username, password=expected_password)
+    if user:
+        login(request, user)
+        return redirect('administrative:dashboard')
     else:
-        username = request.POST["username"]
-        password = request.POST["password"]
-        
-        user, created = CoworkingUser.objects.get_or_create(
-            username='vibez-desk',
-            defaults={
-                'email': 'vibezconnect610@gmail.com',
-            }
-        )
-            
-        if created:
-            user.set_password('vibez-connect@00319')
-            user.save()
-        
-        user = auth.authenticate(username=username, password=password)
-        
-        if user is not None:
-            auth.login(request, user)
-            is_administrative_user(True)
-            return redirect('administrative:dashboard')  # Change to your desired redirect
-        else:
-            is_administrative_user(False)
-            return render(request, 'administrative/login.html', {'message': 'Invalid credentials'})       
+        return render(request, 'administrative/login.html', {'message': 'Authentication failed'})
+    
 
 @user_passes_test(is_administrative_user)
 def administrative_projects(request):
@@ -360,3 +369,8 @@ def delete_project(request, pk):
         # Delete directly without POST form
         project.delete()
         return redirect('administrative:projects')
+
+def admin_logout(request):
+    if request.method == 'POST':
+        logout(request)
+        return redirect('administrative:admin-login')

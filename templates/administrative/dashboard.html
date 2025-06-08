@@ -290,7 +290,7 @@
     flex-wrap: wrap;
 }
 
-.nav a {
+.nav a, button {
     color: white;
     text-decoration: none;
     font-weight: 500;
@@ -300,7 +300,7 @@
     transition: background 0.3s ease, color 0.3s ease;
 }
 
-.nav a:hover {
+.nav a:hover, button {
     background: rgba(255, 255, 255, 0.15);
     color: #e0e0ff;
 }
@@ -313,9 +313,14 @@
         <a href="{% url 'administrative:users_list' %}">Users</a>
         <a href="{% url 'administrative:sessions_history' %}">Sessions</a>
         <a href="{% url 'administrative:projects' %}">Projects</a>
+        <form method='post' action="{% url 'administrative:logout' %}">
+            {% csrf_token %}
+            <button type='submit'>Logout</button>
+        </form>
     </div>
     <div class="container">
     <h1>Administrative Dashboard</h1>
+    <p>Logged in as: {{ request.user.username }}</p>
 
     <div class="stats-grid">
         <div class="stat-card">

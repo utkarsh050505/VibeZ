@@ -53,13 +53,13 @@ def send_otp(request):
             # Generate 4-digit OTP
             otp = random.randint(1000, 9999)
             
-            # Store OTP in cache for 5 minutes
+            # Store OTP in cache for 2 minutes (120 seconds)
             cache_key = f"otp_{email}"
-            cache.set(cache_key, otp, 300)  # 300 seconds = 5 minutes
+            cache.set(cache_key, otp, 120)  # Changed from 300 to 120 seconds
             
             # Send OTP email
             email_subject = 'Your VibeZone Registration OTP'
-            email_body = f'Your OTP for VibeZone registration is: {otp}\n\nThis OTP is valid for 5 minutes.'
+            email_body = f'Your OTP for VibeZone registration is: {otp}\n\nThis OTP is valid for 2 minutes.'
             
             EmailThread(email_subject, email_body, email).start()
             
@@ -67,6 +67,31 @@ def send_otp(request):
             
         except Exception as e:
             return JsonResponse({'error': 'Failed to send OTP'}, status=500)
+    
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+
+# Add this new function to check OTP validity without verification:
+def check_otp_status(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            email = data.get('email')
+            
+            if not email:
+                return JsonResponse({'error': 'Email is required'}, status=400)
+            
+            # Check if OTP exists in cache
+            cache_key = f"otp_{email}"
+            stored_otp = cache.get(cache_key)
+            
+            if stored_otp:
+                return JsonResponse({'valid': True, 'message': 'OTP is still valid'})
+            else:
+                return JsonResponse({'valid': False, 'message': 'OTP expired'})
+                
+        except Exception as e:
+            return JsonResponse({'error': 'Failed to check OTP status'}, status=500)
     
     return JsonResponse({'error': 'Method not allowed'}, status=405)
 

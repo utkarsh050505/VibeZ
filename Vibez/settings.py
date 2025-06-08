@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-ofql(fvi5@z^d3^f8n6cz7x7=^wblu*q_)tpvkb-)^bz@450@c'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['vibezconnect.in', 'www.vibezconnect.in', '147.79.70.103']
+ALLOWED_HOSTS = ['vibezconnect.in', 'www.vibezconnect.in', '147.79.70.103', '127.0.0.1']
 
 
 # Application definition

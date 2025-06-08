@@ -21,5 +21,6 @@ urlpatterns = [
     path('requests/', views.administrative_requests_history, name='requests_history'),
     path('projects/', views.administrative_projects, name='projects'),
     path('projects/<int:pk>/delete/', views.delete_project, name='delete_project'),
-    path('', views.admin_login, name='admin-login')
+    path('', views.admin_login, name='admin-login'),
+    path('logout/', views.admin_logout, name='logout'),
 ]
